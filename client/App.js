@@ -16,6 +16,7 @@ import Boarding from './routes/Boarding'
 import { theme, darkTheme } from './Theme'
 import CreatePost from './routes/CreatePost';
 import RegisterFinal from './routes/RegisterFinal';
+import DirectMessaging from './routes/DirectMessaging';
 
 const Stack = createNativeStackNavigator();
 export const ThemeContext = createContext({})
@@ -50,7 +51,8 @@ export default function App() {
           <Stack.Screen name="registerFinal" component={RegisterFinal} />
           <Stack.Screen name="verifyEmail" component={VerifyEmail} />
           <Stack.Screen name="feed" component={Feed} />
-          <Stack.Screen name="profile" component={Profile} />
+          <Stack.Screen name="profile" component={DirectMessaging} />
+          
         </Stack.Navigator>
       </NavigationContainer>
     </ThemeContext.Provider>
