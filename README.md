@@ -63,24 +63,24 @@ startPost is the pid of the current post for which the user wants to generate a 
 
 **queries**: none
 
-**return**: returns an array of partial (only `geoloaction`, and `campus`) posts objects grouped by the campus. ex:
+**return**: returns an array of partial (only `geoloaction`, `campus`, and `pid`) posts objects grouped by the campus. ex:
 ```
 [
 "livingston":
   [
-    ["40.5027632,-74.4542884"],
-    ["40.4998391,-74.4519992"],
-    ["40.4978166,-74.4496677"],
+    {"longitude": 40.3467133, "latitude": -74.1148324", "pid":"56c73e78-6666-4923-a756-26614ef1f6f6"],
+    {"longitude": 41.1517246, "latitude": -74.3242344", "pid":"73bb2c4a-911c-4a5c-aafd-bb69dfd976c9"],
+    {"longitude": 40.6046241, "latitude": -73.9336884", "pid":"46899b9e-dd16-41ea-88df-dfbf2b2ca982"],
     ...
   ],
 "collegeAve":
   [
-    ["40.5027632,-74.4542884"],
+    {"longitude": 40.5027632, "latitude": -74.4542884", "pid":"b36c6f37-0228-4063-8f2c-6327e2eb46ef"],
     ...
   ],
 "cookDoug":
   [
-    ["40.5027632,-74.4542884"],
+    {"longitude": 40.5027632, "latitude": -74.4542884", "pid":"abdb496a-70dd-4a6d-a1a3-ada338dfe980"],
     ...
   ]
 ]
