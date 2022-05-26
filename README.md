@@ -102,3 +102,5 @@ startPost is the pid of the current post for which the user wants to generate a 
 **description**: creates a new post
 
 **body**: {uid,  text, postedAt, location, geoLocation}
+
+*notice that the user doesn't give campus*. asking the user for a lot of information is bad UX. No need to ask for something if we can calcute it ourselves. here the campus can be determined based the geolocation. It has been done in the old code https://github.com/Keyori/missed-connections/blob/fde295e2c1ce3453892b67d6e153a2fdfb929c6b/server/controllers/feed.js#L48
