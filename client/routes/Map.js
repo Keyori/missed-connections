@@ -13,36 +13,24 @@ import ExploreSvg from '../assets/images/explore_icon'
 import mapStyle from "../mapStyle.json"
 
 import { ThemeContext } from '../App';
+import { useState } from 'react/cjs/react.development';
 
 
 export default function Map({ navigation }) {
   const theme = useContext(ThemeContext)
   const styles = createStyles(theme, Dimensions.get('window').width, Dimensions.get('window').height)
+  const [posts, setPosts] = useState([]) 
+  
   useEffect(async ()=>{
     try{
-        const {data: postsLive} = await axios.get("http://localhost:3000/api/posts") 
-    console.log(postsLive[0])
+      console.log("START")
+      const {data} = await axios.get("http://192.168.1.214:3000/api/1.0/posts/map") ;
+      console.log(data);
+     setPosts(Object.entries(data) );
     }catch(err){
         console.log(err)
     }
-},[])
-  /**
-   * Generate random mock data to test heatmap. 
-   */
-  const randomizePoints = origin => (
-    [...Array(parseInt(Math.random() * 10) + 10).keys()]
-      .map(point => ({
-        latitude: origin.latitude + parseFloat((Math.random() * 0.01 - 0.005).toFixed(6)),
-        longitude: origin.longitude + parseFloat((Math.random() * 0.01 - 0.005).toFixed(6)),
-        weight: 1
-      }))
-  )
-  const pointsArr = [
-    { title: "livingston", points: randomizePoints({ latitude: 40.520525, longitude: -74.436315 }) },
-    { title: "collegeAve", points: randomizePoints({ latitude: 40.502976, longitude: -74.451910, }) },
-    { title: "cookDoug", points: randomizePoints({ latitude: 40.482690, longitude: -74.437395, }) },
-    { title: "busch", points: randomizePoints({ latitude: 40.521168, longitude: -74.462298 }) },
-  ]
+  },[])
 
 
 
@@ -55,7 +43,6 @@ export default function Map({ navigation }) {
     console
     navigation.navigate("feed", { postId: 'PUT_POST_ID_HERE', campus: campus, postCoordinate: e.nativeEvent.coordinate })
   }
-
 
 
   /**
@@ -101,24 +88,24 @@ export default function Map({ navigation }) {
           longitudeDelta: 0.0421,
         }}
       >
-        {pointsArr.map((pointObj, i) => pointObj.points.map((point, j) =>
+        {posts.map((campusPosts, i) => campusPosts[1].map((point, j) =>
           <Marker
             key={"" + i + j}
             icon={require('../assets/images/icon.png')}
             onPress={(e)=>handleMarkerPress(e, pointObj.title)}
-            coordinate={{ latitude: point.latitude, longitude: point.longitude }}
+            coordinate={{ latitude: point.latitude, longitude: point.longitude}}
           />
         ))}
 
-        {pointsArr.map((pointObj, i) => (
+        {posts.map((campusPosts, i) => (
           <Heatmap
-            points={pointObj.points}
+            points={campusPosts[1]}
             key={i}
             radius={50}
             gradientSmoothing={100}
             heatmapMode="POINTS_DENSITY"
             opacity={1}
-            gradient={{ colors: generateGradient(theme.colors[pointObj.title]), startPoints: [0.1, 0.25, 0.5, 0.75, 1], colorMapSize: 200 }}
+            gradient={{ colors: generateGradient(theme.colors[campusPosts[0]]), startPoints: [0.1, 0.25, 0.5, 0.75, 1], colorMapSize: 200 }}
           />
         ))}
       </MapView>

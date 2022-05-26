@@ -1,4 +1,14 @@
-module.exports = (sequelize, DataTypes) => {
+const readyMockPosts = require('../../readyMockPosts.json').map(post => (
+    {
+        "postedAt": post.postedAt,
+        "text": post.text,
+        "campus": post.campus,
+        "location": post.location,
+        "geoLocation": post.coordinates === undefined ? undefined : { type: 'Point', coordinates: post.coordinates.split(",")}
+    } 
+    ))
+
+module.exports =  (sequelize, DataTypes) => {
     const Post = sequelize.define('Post', {
         pid: {
             type: DataTypes.UUID,
@@ -16,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         postedAt: {
-            type: DataTypes.TIME,
+            type: DataTypes.DATE,
             allowNull: false
         },
         location: {
@@ -34,12 +44,10 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         tableName: 'posts'
     })
-    // Post.create({
-    //     text: "To the person I saw looking at my orgo test, you’re looking at the wrong persons test sorry bro wish i coulda helped",
-    //     postedAt: '2022-05-24 20:46:56',
-    //     location: 'Cook Douglass',
-    //     geoLocation: { type: 'Point', coordinates: [39.807222,-76.984722]},
-    //     campus: 'cookDoug'
-    // })
+    // await Post.sync({force: 'force'})
+    // for(let i = 0; i < readyMockPosts.length; i++){
+    //     await Post.create(readyMockPosts[i]);
+
+    // }
     return Post;
 };

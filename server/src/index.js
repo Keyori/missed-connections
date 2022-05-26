@@ -1,9 +1,11 @@
 const  express = require('express');
+const cors = require('cors');
 const usersRouter = require(  "./routes/users");
 const postRouter = require('./routes/posts')
 const app = express();
 const port = 3000;
 
+app.use(cors({origin: true, credentials: true}));
 app.use(express.json());
 app.use(express.urlencoded({extended: true,}));
 
