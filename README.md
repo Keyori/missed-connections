@@ -8,7 +8,7 @@
 ### Posts
 | pid | uid | text | postedAt | location | geoLocation | campus |
 | --- | --- | --- | --- | --- | --- | --- |
-| CHAR(36) | CHAR(36) | TINYTEXT | 	DATETIME | VARCHAR(255)	 | POINT | CHAR(20) |
+| CHAR(36) | CHAR(36) | TEXT | 	DATETIME | VARCHAR(255)	 | POINT | CHAR(20) |
 | 56c73e78-6666-4923-a756-26614ef1f6f6 | df85ce3f-0dfa-4bcd-b365-1690fa67a67a | To the person I saw looking at my orgo test, you’re looking at the wrong persons test sorry bro wish i coulda helped | 1970-01-01 00:00:01 | College Ave Gym | ( 40.5027632, -74.4542884 ) | collegeAve
 
 campus can be collegeAve | cookDoug | livingston | busch | NULL
