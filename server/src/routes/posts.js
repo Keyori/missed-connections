@@ -1,7 +1,7 @@
 const express = require('express');
 const { Op } = require("sequelize");
 const router = express.Router();
-const  { Post  } = require( '../models');
+const  { Post  , sequelize} = require( '../models');
 const {splitByCampus} = require('../helpers/utils')
 
 
@@ -37,15 +37,11 @@ router.get('/:pid', async function (req, res,) {
 });
 
 router.get("/", async function (req, res) {
-    const posts = req.query.not !== undefined ? 
-    await Post.findAll({where: {
-        pid: {
-            [Op.not] : req.query.not
-        }
-    }})
+    const posts = req.query.startPost === undefined ? 
+    await Post.findAll()
     :
-    await Post.findAll();
-  
+    await sequelize.query("UPDATE users SET y = 42 WHERE x = 12")[0]
+    
     res.send(posts);
 })
 

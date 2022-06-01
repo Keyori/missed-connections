@@ -1,12 +1,12 @@
-const readyMockPosts = require('../../readyMockPosts.json').map(post => (
+const readyMockPosts = require('../../mockPosts.json').map(post => (
     {
         "postedAt": post.postedAt,
         "text": post.text,
         "campus": post.campus,
         "location": post.location,
-        "geoLocation": post.coordinates === undefined ? undefined : { type: 'Point', coordinates: post.coordinates.split(",")}
-    } 
-    ))
+        "geoLocation": post.coordinates === undefined ? undefined : { type: 'Point', coordinates: post.coordinates.split(",") }
+    }
+))
 
 module.exports =  (sequelize, DataTypes) => {
     const Post = sequelize.define('Post', {
@@ -22,7 +22,7 @@ module.exports =  (sequelize, DataTypes) => {
             allowNull: false
         },
         text: {
-            type: DataTypes.TEXT('tiny'),
+            type: DataTypes.TEXT,
             allowNull: false
         },
         postedAt: {
@@ -34,7 +34,7 @@ module.exports =  (sequelize, DataTypes) => {
             allowNull: true
         },
         geoLocation: {
-            type: DataTypes.GEOMETRY('POINT') ,
+            type: DataTypes.GEOMETRY('POINT'),
             allowNull: true
         },
         campus: {
@@ -44,9 +44,16 @@ module.exports =  (sequelize, DataTypes) => {
     }, {
         tableName: 'posts'
     })
-    // await Post.sync({force: 'force'})
-    // for(let i = 0; i < readyMockPosts.length; i++){
-    //     await Post.create(readyMockPosts[i]);
+    // await Post.sync({ force: 'force' })
+
+    // for (let i = 0; i < readyMockPosts.length; i++) {
+    //     let post = await Post.build(readyMockPosts[i])
+    //     try{
+    //         await post.save()
+    //     }catch(err){
+    //         console.log("\n\n\n\n"+JSON.stringify(post)+"\n\n\n\n")
+
+    //     }
 
     // }
     return Post;

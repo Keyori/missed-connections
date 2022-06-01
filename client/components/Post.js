@@ -82,9 +82,9 @@ const createStyles = (theme, vh, vw, background, foreground) => (
         },
         messageStyle: textLength => ({
             fontFamily: 'Poppins_500Medium',
-            fontSize: Math.max(-0.0566 * textLength + 39, 22),
+            fontSize: Math.max(-0.0566 * textLength + 33, 22),
             color: foreground,
-            lineHeight: Math.max(-0.2078 * textLength + 84, 32) > 47 ? 47 : Math.max(-0.2078 * textLength + 84, 32),
+            lineHeight: Math.max(-0.2078 * textLength + 50, 30) ,
             paddingTop: 10,
         }),
         time: {

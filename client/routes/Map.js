@@ -23,9 +23,7 @@ export default function Map({ navigation }) {
   
   useEffect(async ()=>{
     try{
-      console.log("START")
-      const {data} = await axios.get("http://192.168.1.214:3000/api/1.0/posts/map") ;
-      console.log(data);
+      const {data} = await axios.get("http://192.168.172.58:3000/api/1.0/posts/map") ;
      setPosts(Object.entries(data) );
     }catch(err){
         console.log(err)
@@ -39,9 +37,9 @@ export default function Map({ navigation }) {
   */
   const mapRef = useRef();
   const handleAnimateToRegion = region => { mapRef.current.animateToRegion(region) }
-  const handleMarkerPress = (e, campus) => {
+  const handleMarkerPress = (e, post, campus) => {
     console
-    navigation.navigate("feed", { postId: 'PUT_POST_ID_HERE', campus: campus, postCoordinate: e.nativeEvent.coordinate })
+    navigation.navigate("feed", { pid: post.pid, campus: campus, postCoordinate: e.nativeEvent.coordinate })
   }
 
 
@@ -92,7 +90,7 @@ export default function Map({ navigation }) {
           <Marker
             key={"" + i + j}
             icon={require('../assets/images/icon.png')}
-            onPress={(e)=>handleMarkerPress(e, pointObj.title)}
+            onPress={(e)=>handleMarkerPress(e, point, campusPosts[0])}
             coordinate={{ latitude: point.latitude, longitude: point.longitude}}
           />
         ))}
