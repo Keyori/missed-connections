@@ -6,6 +6,10 @@ edition = "2021"
 [dependencies]
 tokio = { version = "1", features = ["full"] }
 rocket = { version = "0.5.0-rc.2", features = ["json"] }
+constant_time_eq = "0.1.5"
+check-if-email-exists = "0.8.29"
+rust-argon2 = "1.0.0"
+rand = "0.8.5"
 
 [dependencies.rocket_db_pools]
 version = "0.1.0-rc.2"
