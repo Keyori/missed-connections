@@ -23,7 +23,7 @@ export default function Map({ navigation }) {
   
   useEffect(async ()=>{
     try{
-      const {data} = await axios.get("http://192.168.172.58:3000/api/1.0/posts/map") ;
+      const {data} = await axios.get("http://192.168.1.214:3000/api/1.0/posts/map") ;
      setPosts(Object.entries(data) );
     }catch(err){
         console.log(err)

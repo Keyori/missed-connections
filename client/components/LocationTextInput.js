@@ -4,6 +4,8 @@ import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplet
 import { ThemeContext } from '../App'
 import { useContext, useEffect } from 'react';
 import { useFonts, Poppins_400Regular } from '@expo-google-fonts/poppins';
+import uuid from 'react-native-uuid';
+
 import AppLoading from 'expo-app-loading';
 
     // <TextInput
@@ -81,9 +83,9 @@ export default function LocationTextInput({navigation, style, callback=()=>{},an
           key: 'AIzaSyDGf63pZ431mpQEyLVoVI204wrq4te_aGc',
           language: 'en',
           location: '40.501666, -74.450201',
-          radius: '9000',
+          radius :5000,
           strictbounds: true,
-          types: 'geocode',
+          sessiontoken: uuid.v4(),
 
         }}
       />

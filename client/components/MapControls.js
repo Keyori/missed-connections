@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { StyleSheet, TextInput, View, FlatList } from 'react-native';
 
 
@@ -65,17 +65,21 @@ export default function MapControls({animateToRegion}) {
                 shadowOffSet={3.5} />
         </View>
     );
+
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     return (
         <SafeAreaView style={styles.controlsContainer}>
             <View style={styles.mapControlsContainer}>
 
                 <View style={styles.searchContainer}>
                     <SearchSvg height={19} width={19} style={{ position: 'absolute', left: '7%',top: 20, zIndex: 2 }} />
-                    <LocationTextInput extraStyles = {styles.textSearch} animateToRegion = {(region)=> animateToRegion({
-                latitude: region.latitude, 
-                longitude:  region.longitude,
-                latitudeDelta: 0.002, longitudeDelta: 0.002
-                    })}/>
+                    <LocationTextInput extraStyles = {styles.textSearch} 
+                        callback = {()=> setIsDropdownOpen(old => !old)}
+                        animateToRegion = {(region)=> animateToRegion({
+                            latitude: region.latitude, 
+                            longitude:  region.longitude,
+                            latitudeDelta: 0.002, longitudeDelta: 0.002
+                        })}/>
                 </View>
 
                 <FlatList
