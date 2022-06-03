@@ -65,7 +65,7 @@ startPost is the pid of the current post for which the user wants to generate a 
 
 **return**: returns an array of partial (only `geoloaction`, `campus`, and `pid`) posts objects grouped by the campus. ex:
 ```
-[
+{[
 "livingston":
   [
     {"longitude": 40.3467133, "latitude": -74.1148324", "pid":"56c73e78-6666-4923-a756-26614ef1f6f6"],
@@ -83,7 +83,7 @@ startPost is the pid of the current post for which the user wants to generate a 
     {"longitude": 40.5027632, "latitude": -74.4542884", "pid":"abdb496a-70dd-4a6d-a1a3-ada338dfe980"],
     ...
   ]
-]
+]}
 ```
 -----
 
