@@ -10,6 +10,7 @@ constant_time_eq = "0.1.5"
 check-if-email-exists = "0.8.29"
 rust-argon2 = "1.0.0"
 rand = "0.8.5"
+uuid = { version = "0.8", features = ["v4"]}
 
 [dependencies.rocket_db_pools]
 version = "0.1.0-rc.2"
@@ -17,6 +18,6 @@ features = ["sqlx_postgres"]
 
 [dependencies.sqlx]
 version = "0.5"
-default-features = false
-features = ["macros"]
+default-features = true
+features = ["macros", "uuid"]
 

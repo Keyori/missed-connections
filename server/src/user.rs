@@ -1,31 +1,17 @@
-use std::borrow::BorrowMut;
-use std::future::Future;
-use check_if_email_exists::CheckEmailInput;
 use rand::Rng;
-use rocket::form::validate::Contains;
-use rocket::http::{Cookie, Status};
-use rocket::{Request, Response};
-use rocket::futures::TryFutureExt;
-use rocket::http::hyper::body::HttpBody;
-use rocket::request::{FromRequest, Outcome};
-use rocket_db_pools::{Connection, Database};
-use rocket::outcome::try_outcome;
+use rocket_db_pools::Connection;
 use rocket::serde::json::Json;
-use sqlx::Error;
-use crate::{Db, db, INTERNAL_ERROR};
-use rocket::serde::{Deserialize, Serialize};
-use sqlx::pool::PoolConnection;
-use crate::db::DbError;
-use crate::user_api::{CreateAccountError, CreateAccountRequest, Gender};
-use crate::error::ServerError::Expected;
+use crate::{Db, db};
+use crate::user_api::{CreateAccountError, CreateAccountRequest, LoginError, LoginRequest};
+use crate::error::ServerError::{Expected, Unexpected};
 use crate::error::ServerError;
+use sqlx::Acquire;
+use sqlx::types::Uuid;
 
 
-#[get("/create-account", data = "<request>")]
+#[post("/create-account", data = "<request>")]
 pub async fn create_account(mut db: Connection<Db>, request: Json<CreateAccountRequest>) -> Result<(), ServerError<CreateAccountError>> {
-
-    let mut transaction = db.
-    // let mut transaction = db.0.begin().await?;
+    let mut transaction = (&mut *db).begin().await?;
 
     if request.graduation_year < 2022 || request.graduation_year > 2026 {
         return Err(Expected(CreateAccountError::InvalidGraduationYear("Invalid graduation year.".to_string())));
@@ -48,7 +34,7 @@ pub async fn create_account(mut db: Connection<Db>, request: Json<CreateAccountR
 
     db::add_account(&mut transaction, &request.username, &request.email, &password_hash, &salt, &request.first_name, &request.last_name, &request.gender, request.graduation_year).await?;
 
-    transaction.commit()?;
+    transaction.commit().await?;
 
     Ok(())
 }
@@ -60,6 +46,26 @@ fn is_password_valid(password: &str) -> bool {
     && password.chars().any(char::is_numeric)
 }
 
+#[post("/login", data = "<request>")]
+pub async fn login(mut db: Connection<Db>, request: Json<LoginRequest>) -> Result<String, ServerError<LoginError>> {
+    let mut transaction = (&mut *db).begin().await?;
 
-// let matches = argon2::verify_encoded(&hash, password).unwrap();
+    let password_hash = match db::get_password_hash(&mut transaction, &request.username).await? {
+        None => return Err(Unexpected("Cannot find password hash after successfully finding salt.".to_string())),
+        Some(salt) => salt,
+    };
+
+
+    if argon2::verify_encoded(&password_hash, request.password.as_bytes()).unwrap() {
+        let session_id = Uuid::new_v4();
+        db::set_session_id(&mut transaction, &request.username, session_id).await?;
+
+        transaction.commit().await?;
+
+        Ok(session_id.to_string())
+    } else {
+        Err(Expected(LoginError::IncorrectPassword("Your password is incorrect.".to_string())))
+    }
+
+}
 

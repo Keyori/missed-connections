@@ -14,7 +14,7 @@ mod error;
 fn rocket() -> _ {
     rocket::build().attach(Db::init()).mount(
         "/",
-        routes![posts::get_post, posts::get_all_posts, posts::add_post],
+        routes![posts::get_post, posts::get_all_posts, posts::add_post, user::create_account, user::login],
     )
 }
 

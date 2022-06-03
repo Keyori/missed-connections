@@ -1,9 +1,9 @@
 use rocket::serde::{Deserialize, Serialize};
 use rocket_db_pools::sqlx::FromRow;
-use rocket_db_pools::{sqlx, Connection, Database};
+use rocket_db_pools::{sqlx, Database, Connection};
 use sqlx::{Error, Postgres, Row, Transaction};
-use sqlx::postgres::PgRow;
-use crate::user_api::{CreateAccountRequest, Gender};
+use uuid::Uuid;
+use crate::user_api::Gender;
 
 #[derive(Database)]
 #[database("sqlx_postgres")]
@@ -37,7 +37,7 @@ pub async fn get_post(transaction: &mut Transaction<'_, Postgres>, post_id: i64)
         .await?)
 }
 
-pub async fn get_all_posts(transaction: &mut Transaction<'_, Postgres>,) -> Result<Vec<Post>, DbError> {
+pub async fn get_posts(transaction: &mut Transaction<'_, Postgres>, cursor: ) -> Result<Vec<Post>, DbError> {
     Ok(sqlx::query_as("SELECT * FROM posts")
         .fetch_all(transaction)
         .await?)
@@ -56,10 +56,10 @@ pub async fn add_post(transaction: &mut Transaction<'_, Postgres>, post: Post) -
     Ok(())
 }
 
-pub async fn get_username(transaction: &mut Transaction<'_, Postgres>, session_id: &str) -> Result<Option<String>, DbError> {
+pub async fn get_username(mut conn: Connection<Db>, session_id: Uuid) -> Result<Option<String>, DbError> {
     Ok(sqlx::query("SELECT username FROM accounts WHERE session_id = $1")
         .bind(session_id)
-        .fetch_optional(transaction)
+        .fetch_optional(&mut *conn)
         .await
         .map(|maybe_row| maybe_row.and_then(|row| row.get("username")))?)
 }
@@ -87,3 +87,30 @@ pub async fn add_account(transaction: &mut Transaction<'_, Postgres>, username: 
 
     Ok(())
 }
+
+pub async fn get_salt(transaction: &mut Transaction<'_, Postgres>, username: &str) -> Result<Option<Vec<u8>>, DbError> {
+    Ok(sqlx::query("SELECT salt FROM accounts WHERE username = $1 ")
+        .bind(username)
+        .fetch_optional(transaction)
+        .await
+        .map(|maybe_row| maybe_row.and_then(|row| row.get("salt")))?)
+}
+
+pub async fn get_password_hash(transaction: &mut Transaction<'_, Postgres>, username: &str) -> Result<Option<String>, DbError> {
+    Ok(sqlx::query("SELECT password_hash FROM accounts WHERE username = $1")
+        .bind(username)
+        .fetch_optional(transaction)
+        .await
+        .map(|maybe_row| maybe_row.and_then(|row| row.get("password_hash")))?)
+}
+
+pub async fn set_session_id(transaction: &mut Transaction<'_, Postgres>, username: &str, session_id: Uuid) -> Result<(), DbError> {
+    sqlx::query("UPDATE accounts SET session_id = $1 WHERE username = $2")
+        .bind(session_id)
+        .bind(username)
+        .execute(transaction)
+        .await?;
+
+    Ok(())
+}
+

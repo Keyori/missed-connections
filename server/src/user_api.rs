@@ -1,10 +1,12 @@
+use std::str::FromStr;
 use rocket::request::{FromRequest, Outcome};
 use rocket::Request;
-use rocket_db_pools::Connection;
 use rocket::http::Status;
 use crate::{Db, db};
 use rocket::serde::{Serialize, Deserialize};
-use sqlx::{Error, Postgres, Transaction};
+use rocket_db_pools::Connection;
+use rocket::outcome::try_outcome;
+use uuid::{Error, Uuid};
 
 pub struct AuthorizedUser {
     username: String
@@ -14,24 +16,21 @@ pub struct AuthorizedUser {
 impl<'r> FromRequest<'r> for AuthorizedUser {
     type Error = ();
 
-    async fn from_request(request: &'r Request<'_>) -> Outcome<Self, Self::Error> {
-        let transaction = match request.guard::<&Db>().await.unwrap().0.begin().await {
-            Ok(transaction) => transaction,
-            Err(_) => return Outcome::Failure((Status::InternalServerError, ()))
-        };
-
-
+    async fn from_request(request: &'r Request<'_>) -> Outcome<Self, ()> {
         let session_id = match request.cookies().get("session_id") {
             None => return Outcome::Failure((Status::Unauthorized, ())),
-            Some(session_id) => session_id.value()
+            Some(str_session_id) => match Uuid::from_str(str_session_id.value()) {
+                Ok(session_id) => session_id,
+                Err(_) => return Outcome::Failure((Status::Unauthorized, ())),
+            }
         };
 
-        let username = match db::get_username(&mut transaction, session_id).await {
+        let mut conn = request.guard::<Connection<Db>>().await.unwrap();
+
+        let username = match db::get_username(conn, session_id).await {
             Ok(Some(username)) => username,
             _ => return Outcome::Failure((Status::Unauthorized, ()))
         };
-
-
 
         Outcome::Success(AuthorizedUser {
             username
@@ -51,6 +50,7 @@ pub enum Gender {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
+#[serde(rename_all = "camelCase")]
 pub struct CreateAccountRequest {
     pub email: String,
     pub username: String,
@@ -71,5 +71,21 @@ pub enum CreateAccountError {
     BadEmail(String),
     #[response(status = 400)]
     InvalidGraduationYear(String),
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+#[serde(rename_all = "camelCase")]
+pub struct LoginRequest {
+    pub username: String,
+    pub password: String,
+}
+
+#[derive(Responder)]
+pub enum LoginError {
+    #[response(status = 400)]
+    IncorrectPassword(String),
+    #[response(status = 409)]
+    UsernameDoesNotExist(String),
 }
 
