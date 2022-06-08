@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }
-rocket = { version = "0.5.0-rc.2", features = ["json"] }
+rocket = { version = "0.5.0-rc.2", features = ["json", "uuid"] }
 constant_time_eq = "0.1.5"
 check-if-email-exists = "0.8.29"
 rust-argon2 = "1.0.0"
@@ -19,5 +19,5 @@ features = ["sqlx_postgres"]
 [dependencies.sqlx]
 version = "0.5"
 default-features = true
-features = ["macros", "uuid"]
+features = ["macros", "uuid", "time"]
 

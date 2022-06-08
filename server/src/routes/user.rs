@@ -3,7 +3,7 @@ use rocket_db_pools::Connection;
 use rocket::serde::json::Json;
 use crate::{Db, db};
 use crate::user_api::{CreateAccountError, CreateAccountRequest, LoginError, LoginRequest};
-use crate::error::ServerError::{Expected, Unexpected};
+use crate::error::ServerError::Expected;
 use crate::error::ServerError;
 use sqlx::Acquire;
 use sqlx::types::Uuid;
@@ -51,10 +51,9 @@ pub async fn login(mut db: Connection<Db>, request: Json<LoginRequest>) -> Resul
     let mut transaction = (&mut *db).begin().await?;
 
     let password_hash = match db::get_password_hash(&mut transaction, &request.username).await? {
-        None => return Err(Unexpected("Cannot find password hash after successfully finding salt.".to_string())),
+        None => return Err(Expected(LoginError::UsernameDoesNotExist("This username does not exist.".to_string()))),
         Some(salt) => salt,
     };
-
 
     if argon2::verify_encoded(&password_hash, request.password.as_bytes()).unwrap() {
         let session_id = Uuid::new_v4();

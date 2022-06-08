@@ -23,11 +23,14 @@ CREATE TABLE IF NOT EXISTS accounts (
 );
 
 CREATE TABLE IF NOT EXISTS posts (
-    id          SERIAL PRIMARY KEY,
-    creator     TEXT NOT NULL,
-    posted_at   TIMESTAMP NOT NULL,
-    message     TEXT NOT NULL,
-    location    POINT NOT NULL,
+    id              UUID PRIMARY KEY,
+    creator         TEXT NOT NULL,
+    message         TEXT NOT NULL,
+    posted_at       TIMESTAMP NOT NULL DEFAULT now(),
+    longitude       FLOAT4 NOT NULL,
+    latitude        FLOAT4 NOT NULL,
+    location        TEXT NOT NULL,
+    campus          TEXT NOT NULL,
 
 -- disabled currently so I can test posts
     CONSTRAINT genuine_user		FOREIGN KEY (creator) REFERENCES accounts(username)
@@ -35,17 +38,11 @@ CREATE TABLE IF NOT EXISTS posts (
 
 CREATE TABLE IF NOT EXISTS comments (
     id          SERIAL PRIMARY KEY,
-    post_id     SERIAL NOT NULL,
+    post_id     UUID NOT NULL,
     creator     TEXT NOT NULL,
     posted_at   TIMESTAMP NOT NULL,
-    content     TEXT NOT NULL,
+    message     TEXT NOT NULL,
 
     CONSTRAINT genuine_post		FOREIGN KEY (post_id) REFERENCES posts(id),
     CONSTRAINT genuine_user		FOREIGN KEY (creator) REFERENCES accounts(username)
 )
-
-
---     name		TEXT NOT NULL,
---     public_key	TEXT NOT NULL,
---     CONSTRAINT pk_accounts		PRIMARY KEY (name),
---     CONSTRAINT uk_public_key	UNIQUE (public_key)

@@ -5,11 +5,10 @@ use rocket::http::Status;
 use crate::{Db, db};
 use rocket::serde::{Serialize, Deserialize};
 use rocket_db_pools::Connection;
-use rocket::outcome::try_outcome;
-use uuid::{Error, Uuid};
+use uuid::Uuid;
 
 pub struct AuthorizedUser {
-    username: String
+    pub username: String
 }
 
 #[rocket::async_trait]
@@ -17,15 +16,15 @@ impl<'r> FromRequest<'r> for AuthorizedUser {
     type Error = ();
 
     async fn from_request(request: &'r Request<'_>) -> Outcome<Self, ()> {
-        let session_id = match request.cookies().get("session_id") {
+        let session_id = match request.headers().get_one("Session-Id") {
             None => return Outcome::Failure((Status::Unauthorized, ())),
-            Some(str_session_id) => match Uuid::from_str(str_session_id.value()) {
+            Some(str_session_id) => match Uuid::from_str(str_session_id) {
                 Ok(session_id) => session_id,
                 Err(_) => return Outcome::Failure((Status::Unauthorized, ())),
             }
         };
 
-        let mut conn = request.guard::<Connection<Db>>().await.unwrap();
+        let conn = request.guard::<Connection<Db>>().await.unwrap();
 
         let username = match db::get_username(conn, session_id).await {
             Ok(Some(username)) => username,

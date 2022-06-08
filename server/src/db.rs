@@ -1,7 +1,7 @@
-use rocket::serde::{Deserialize, Serialize};
 use rocket_db_pools::sqlx::FromRow;
 use rocket_db_pools::{sqlx, Database, Connection};
 use sqlx::{Error, Postgres, Row, Transaction};
+use sqlx::types::time::PrimitiveDateTime;
 use uuid::Uuid;
 use crate::user_api::Gender;
 
@@ -9,47 +9,62 @@ use crate::user_api::Gender;
 #[database("sqlx_postgres")]
 pub struct Db(pub sqlx::PgPool);
 
-#[derive(FromRow, Serialize, Deserialize)]
-#[serde(crate = "rocket::serde")]
-pub struct Post {
+#[derive(FromRow)]
+pub struct DbPost {
+    pub id: Uuid,
     pub creator: String,
-    pub posted_at: i64,
+    pub message: String,
+    pub posted_at: PrimitiveDateTime,
     pub longitude: f32,
     pub latitude: f32,
-    pub content: String,
+    pub location: String,
 }
 
 #[derive(Debug)]
 pub enum DbError {
+    RowNotFound,
     Unexpected(String)
 }
 
 impl From<sqlx::Error> for DbError {
     fn from(err: Error) -> Self {
-        DbError::Unexpected(format!("{:?}", err))
+        match err {
+            Error::RowNotFound => DbError::RowNotFound,
+            _ => DbError::Unexpected(format!("{:?}", err))
+        }
     }
 }
 
-pub async fn get_post(transaction: &mut Transaction<'_, Postgres>, post_id: i64) -> Result<Option<Post>, DbError> {
-    Ok(sqlx::query_as("SELECT * FROM posts WHERE id = $1")
-        .bind(post_id)
+pub async fn get_post(transaction: &mut Transaction<'_, Postgres>, post_id: Uuid) -> Result<Option<DbPost>, DbError> {
+    Ok(sqlx::query_as!(DbPost, r#"SELECT id, location, creator, posted_at, longitude, latitude, message FROM posts WHERE id = $1"#, post_id)
         .fetch_optional(transaction)
         .await?)
 }
 
-pub async fn get_posts(transaction: &mut Transaction<'_, Postgres>, cursor: ) -> Result<Vec<Post>, DbError> {
-    Ok(sqlx::query_as("SELECT * FROM posts")
+pub async fn get_posts(transaction: &mut Transaction<'_, Postgres>, id: Uuid, limit: i64) -> Result<Vec<DbPost>, DbError> {
+    Ok(sqlx::query_as!(DbPost, "SELECT id, creator, message, posted_at, longitude, latitude, location FROM posts WHERE id = $1 ORDER BY id DESC LIMIT $2", id, limit)
         .fetch_all(transaction)
         .await?)
 }
 
-pub async fn add_post(transaction: &mut Transaction<'_, Postgres>, post: Post) -> Result<(), DbError> {
-    sqlx::query("INSERT INTO posts ( creator, posted_at, longitude, latitude, content ) VALUES ( $1, $2, $3, $4, $5 )")
-        .bind(post.creator)
-        .bind(post.posted_at)
-        .bind(post.longitude)
-        .bind(post.latitude)
-        .bind(post.content)
+pub async fn get_newest_posts(transaction: &mut Transaction<'_, Postgres>) -> Result<Vec<DbPost>, DbError> {
+    Ok(sqlx::query_as!(DbPost, "SELECT id, creator, message, posted_at, longitude, latitude, location FROM posts ORDER BY posted_at DESC LIMIT 100")
+        .fetch_all(transaction)
+        .await?)
+}
+
+pub async fn add_post(transaction: &mut Transaction<'_, Postgres>, username: &str, message: &str, geo_location: (f32, f32), location: &str, campus: &str) -> Result<(), DbError> {
+    sqlx::query!(r#"
+        INSERT INTO posts ( id, creator, message, longitude, latitude, location, campus ) VALUES ( $1, $2, $3, $4, $5, $6, $7 )
+        "#,
+        Uuid::new_v4(),
+        username,
+        message,
+        geo_location.0,
+        geo_location.1,
+        location,
+        campus
+    )
         .execute(transaction)
         .await?;
 
@@ -113,4 +128,6 @@ pub async fn set_session_id(transaction: &mut Transaction<'_, Postgres>, usernam
 
     Ok(())
 }
+
+
 

@@ -5,16 +5,22 @@ use crate::db::Db;
 use rocket_db_pools::Database;
 
 mod db;
-mod posts;
-mod user;
-mod user_api;
 mod error;
+mod routes;
+mod user_api;
+
 
 #[launch]
 fn rocket() -> _ {
     rocket::build().attach(Db::init()).mount(
         "/",
-        routes![posts::get_post, posts::get_all_posts, posts::add_post, user::create_account, user::login],
+        routes![
+            routes::posts::get_post,
+            routes::posts::get_posts,
+            routes::posts::add_post,
+            routes::posts::get_posts_map,
+            routes::user::create_account,
+            routes::user::login],
     )
 }
 
