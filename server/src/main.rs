@@ -20,7 +20,8 @@ fn rocket() -> _ {
             routes::posts::add_post,
             routes::posts::get_posts_map,
             routes::user::create_account,
-            routes::user::login],
+            routes::user::login
+        ],
     )
 }
 

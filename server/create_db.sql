@@ -25,11 +25,11 @@ CREATE TABLE IF NOT EXISTS accounts (
 CREATE TABLE IF NOT EXISTS posts (
     id              UUID PRIMARY KEY,
     creator         TEXT NOT NULL,
-    message         TEXT NOT NULL,
-    posted_at       TIMESTAMP NOT NULL DEFAULT now(),
+    message        TEXT NOT NULL,
+    posted_at       TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
     longitude       FLOAT4 NOT NULL,
     latitude        FLOAT4 NOT NULL,
-    location        TEXT NOT NULL,
+    location       TEXT NOT NULL,
     campus          TEXT NOT NULL,
 
 -- disabled currently so I can test posts

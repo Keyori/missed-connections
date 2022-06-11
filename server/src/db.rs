@@ -54,17 +54,14 @@ pub async fn get_newest_posts(transaction: &mut Transaction<'_, Postgres>) -> Re
 }
 
 pub async fn add_post(transaction: &mut Transaction<'_, Postgres>, username: &str, message: &str, geo_location: (f32, f32), location: &str, campus: &str) -> Result<(), DbError> {
-    sqlx::query!(r#"
-        INSERT INTO posts ( id, creator, message, longitude, latitude, location, campus ) VALUES ( $1, $2, $3, $4, $5, $6, $7 )
-        "#,
-        Uuid::new_v4(),
-        username,
-        message,
-        geo_location.0,
-        geo_location.1,
-        location,
-        campus
-    )
+    sqlx::query("INSERT INTO posts ( id, creator, message, posted_at, longitude, latitude, location, campus ) VALUES ( $1, $2, $3, default, $4, $5, $6, $7 )")
+        .bind(Uuid::new_v4())
+        .bind(username)
+        .bind(message)
+        .bind(geo_location.0)
+        .bind(geo_location.1)
+        .bind(location)
+        .bind(campus)
         .execute(transaction)
         .await?;
 
@@ -101,14 +98,6 @@ pub async fn add_account(transaction: &mut Transaction<'_, Postgres>, username: 
         .await?;
 
     Ok(())
-}
-
-pub async fn get_salt(transaction: &mut Transaction<'_, Postgres>, username: &str) -> Result<Option<Vec<u8>>, DbError> {
-    Ok(sqlx::query("SELECT salt FROM accounts WHERE username = $1 ")
-        .bind(username)
-        .fetch_optional(transaction)
-        .await
-        .map(|maybe_row| maybe_row.and_then(|row| row.get("salt")))?)
 }
 
 pub async fn get_password_hash(transaction: &mut Transaction<'_, Postgres>, username: &str) -> Result<Option<String>, DbError> {

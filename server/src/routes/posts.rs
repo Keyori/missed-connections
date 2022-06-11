@@ -4,7 +4,9 @@ use rocket::serde::uuid::Uuid;
 use crate::error::ServerError;
 use crate::user_api::AuthorizedUser;
 use rocket::serde::{Serialize, Deserialize};
+use rocket_db_pools::Connection;
 use crate::db::{DbError, DbPost};
+use sqlx::Acquire;
 use crate::error::ServerError::{Expected, Unexpected};
 
 #[derive(Responder)]
@@ -49,7 +51,6 @@ pub struct Post {
     pub location: String,
 }
 
-// uid, text, postedAt, location, geoLocation
 #[get("/posts?<id>&<limit>")]
 pub async fn get_posts(db: &Db, _account: AuthorizedUser, id: Uuid, limit: i64) -> Result<Json<Vec<Post>>, ServerError<GetPostsError>> {
     let db_posts: Vec<DbPost> = db::get_posts(&mut db.0.begin().await.unwrap(), uuid::Uuid::from_bytes(*id.as_bytes()), limit)
@@ -82,15 +83,19 @@ pub struct AddPostRequest {
 }
 
 #[post("/posts", data = "<request>")]
-pub async fn add_post(db: &Db, account: AuthorizedUser, request: Json<AddPostRequest>) -> Result<(), ServerError<()>>{
+pub async fn add_post(mut db: Connection<Db>, account: AuthorizedUser, request: Json<AddPostRequest>) -> Result<(), ServerError<()>>{
+    let mut transaction = (&mut *db).begin().await?;
+
     db::add_post(
-        &mut db.0.begin().await.unwrap(),
+        &mut transaction,
         &account.username,
         &request.message,
         request.geo_location,
         &request.location,
         &request.campus
     ).await?;
+
+    transaction.commit().await?;
 
     Ok(())
 }
