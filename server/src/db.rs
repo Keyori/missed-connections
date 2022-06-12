@@ -117,17 +117,15 @@ pub async fn add_account(
     username: &str,
     email: &str,
     password_hash: &str,
-    salt: &[u8],
     first_name: &str,
     last_name: &str,
     gender: &Gender,
     graduation_year: i16,
 ) -> Result<(), DbError> {
-    sqlx::query("INSERT INTO accounts ( username, email, password_hash, salt, first_name, last_name, gender, graduation_year ) VALUES ( $1, $2, $3, $4, $5, $6, $7, $8 )")
+    sqlx::query("INSERT INTO accounts ( username, email, password_hash, first_name, last_name, gender, graduation_year ) VALUES ( $1, $2, $3, $4, $5, $6, $7 )")
         .bind(username)
         .bind(email)
         .bind(password_hash)
-        .bind(salt)
         .bind(first_name)
         .bind(last_name)
         .bind(gender)

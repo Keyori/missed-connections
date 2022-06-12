@@ -12,7 +12,6 @@ CREATE TABLE IF NOT EXISTS accounts (
     username            TEXT PRIMARY KEY,
     email               TEXT NOT NULL,
     password_hash       TEXT NOT NULL,
-    salt                BYTEA NOT NULL,
     session_id          UUID,
     first_name          TEXT NOT NULL,
     last_name           TEXT NOT NULL,

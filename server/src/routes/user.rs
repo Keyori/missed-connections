@@ -52,7 +52,6 @@ pub async fn create_account(
         &request.username,
         &request.email,
         &password_hash,
-        &salt,
         &request.first_name,
         &request.last_name,
         &request.gender,
@@ -81,14 +80,9 @@ pub async fn login(
 ) -> Result<String, ServerError<LoginError>> {
     let mut transaction = (&mut *db).begin().await?;
 
-    let password_hash = match db::get_password_hash(&mut transaction, &request.username).await? {
-        None => {
-            return Err(Expected(LoginError::UsernameDoesNotExist(
-                "This username does not exist.".to_string(),
-            )))
-        }
-        Some(salt) => salt,
-    };
+    let password_hash = db::get_password_hash(&mut transaction, &request.username).await?.ok_or(Expected(LoginError::UsernameDoesNotExist(
+        "This username does not exist.".to_string(),
+    )))?;
 
     if argon2::verify_encoded(&password_hash, request.password.as_bytes()).unwrap() {
         let session_id = Uuid::new_v4();
