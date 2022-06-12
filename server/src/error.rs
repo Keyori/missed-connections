@@ -4,7 +4,7 @@ use crate::db::DbError;
 pub enum ServerError<T> {
     Expected(T),
     #[response(status = 500)]
-    Unexpected(String)
+    Unexpected(String),
 }
 
 impl<T> From<sqlx::Error> for ServerError<T> {

@@ -1,14 +1,14 @@
-use std::str::FromStr;
-use rocket::request::{FromRequest, Outcome};
-use rocket::Request;
+use crate::{db, Db};
 use rocket::http::Status;
-use crate::{Db, db};
-use rocket::serde::{Serialize, Deserialize};
+use rocket::request::{FromRequest, Outcome};
+use rocket::serde::{Deserialize, Serialize};
+use rocket::Request;
 use rocket_db_pools::Connection;
+use std::str::FromStr;
 use uuid::Uuid;
 
 pub struct AuthorizedUser {
-    pub username: String
+    pub username: String,
 }
 
 #[rocket::async_trait]
@@ -21,19 +21,17 @@ impl<'r> FromRequest<'r> for AuthorizedUser {
             Some(str_session_id) => match Uuid::from_str(str_session_id) {
                 Ok(session_id) => session_id,
                 Err(_) => return Outcome::Failure((Status::Unauthorized, ())),
-            }
+            },
         };
 
         let conn = request.guard::<Connection<Db>>().await.unwrap();
 
         let username = match db::get_username(conn, session_id).await {
             Ok(Some(username)) => username,
-            _ => return Outcome::Failure((Status::Unauthorized, ()))
+            _ => return Outcome::Failure((Status::Unauthorized, ())),
         };
 
-        Outcome::Success(AuthorizedUser {
-            username
-        })
+        Outcome::Success(AuthorizedUser { username })
     }
 }
 
@@ -44,7 +42,7 @@ impl<'r> FromRequest<'r> for AuthorizedUser {
 pub enum Gender {
     Male,
     Female,
-    Other
+    Other,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -57,7 +55,7 @@ pub struct CreateAccountRequest {
     pub last_name: String,
     pub password: String,
     pub gender: Gender,
-    pub graduation_year: i16
+    pub graduation_year: i16,
 }
 
 #[derive(Responder)]
@@ -87,4 +85,3 @@ pub enum LoginError {
     #[response(status = 409)]
     UsernameDoesNotExist(String),
 }
-

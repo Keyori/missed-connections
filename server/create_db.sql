@@ -25,12 +25,14 @@ CREATE TABLE IF NOT EXISTS accounts (
 CREATE TABLE IF NOT EXISTS posts (
     id              UUID PRIMARY KEY,
     creator         TEXT NOT NULL,
-    message        TEXT NOT NULL,
+    message         TEXT NOT NULL,
     posted_at       TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
     longitude       FLOAT4 NOT NULL,
     latitude        FLOAT4 NOT NULL,
-    location       TEXT NOT NULL,
+    location        TEXT NOT NULL,
     campus          TEXT NOT NULL,
+    likes           INT8 NOT NULL,
+    dislikes        INT8 NOT NULL,
 
 -- disabled currently so I can test posts
     CONSTRAINT genuine_user		FOREIGN KEY (creator) REFERENCES accounts(username)
@@ -42,6 +44,7 @@ CREATE TABLE IF NOT EXISTS comments (
     creator     TEXT NOT NULL,
     posted_at   TIMESTAMP NOT NULL,
     message     TEXT NOT NULL,
+    likes       INT8 NOT NULL,
 
     CONSTRAINT genuine_post		FOREIGN KEY (post_id) REFERENCES posts(id),
     CONSTRAINT genuine_user		FOREIGN KEY (creator) REFERENCES accounts(username)

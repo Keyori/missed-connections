@@ -9,7 +9,6 @@ mod error;
 mod routes;
 mod user_api;
 
-
 #[launch]
 fn rocket() -> _ {
     rocket::build().attach(Db::init()).mount(
