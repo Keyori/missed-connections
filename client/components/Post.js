@@ -12,7 +12,7 @@ import { ThemeContext } from '../App';
 export default function Post({ textContent, date, location, campus}) {
 
     const theme = useContext(ThemeContext)
-    const background = theme.colors[campus];
+    const background = theme.colors[campus] === undefined ? "white" :theme.colors[campus] ;
     const foreground = Color(background).darken(0.6).hex()
     const styles = createStyles(theme, Dimensions.get("window").height,Dimensions.get("window").width, background, foreground)
 
@@ -46,7 +46,7 @@ export default function Post({ textContent, date, location, campus}) {
                     selectionColor="#F17F8C"
                     placeholderTextColor = {Color(background).darken(0.3).hex()}
                 />
-                <Text style={styles.shadowBox}>Send a chat</Text>
+                <Text style={styles.shadowBox}></Text>
             </View>
         </SafeAreaView>
     )

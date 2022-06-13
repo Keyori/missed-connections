@@ -1,7 +1,7 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { useFonts, Poppins_400Regular, Poppins_500Medium } from '@expo-google-fonts/poppins'
 import AppLoading from 'expo-app-loading'
-import { View, Text, StyleSheet, Dimensions, TextInput, Pressable } from 'react-native'
+import { View, Text, StyleSheet, Dimensions, TextInput, Pressable, Keyboard, KeyboardAvoidingView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import axios from 'axios'
 
@@ -9,7 +9,7 @@ import Button from '../components/Button'
 import RegisterInput from '../components/RegisterInput'
 import { ThemeContext } from '../App'
 import XSign from '../assets/images/x';
-import LocationTextInput from '../components/LocationTextInput'
+import PlacesAutocomplete from '../components/PlacesAutocomplete'
 import SearchSvg from '../assets/images/search_icon'
 import Clock from '../assets/images/clock'
 
@@ -28,123 +28,131 @@ export default function CreatePost({ navigation }) {
     const [postText, setPostText] = useState("");
     const handlePostText = text => { setPostText(text) };
 
-    const [location, setLocation] = useState({description: '',geometry:{location:{lng:0,lat:0}}});
+    const [location, setLocation] = useState({ mainText: '', geometry: { location: { lng: 0, lat: 0 } } });
 
-    const handleLocationCallBack = locationObj => {
-        setLocation(locationObj)
-    }
+
     const isValidPost = postText => postText.length > 5
 
     async function handlePublish() {
         console.log(postText)
-        try{
+        try {
             const sessionId = await SecureStore.getItemAsync("sessionId");
             console.log(sessionId)
             const responseData = await axios.post("http://localhost:3000/api/posts", {
                 sessionId: sessionId,
                 content: postText,
                 longitude: location.geometry.location.lng,
-                latitude:location.geometry.location.lat,
-                location: location.description,
+                latitude: location.geometry.location.lat,
+                location: location.mainText,
                 campus: -1,
             })
             console.log(responseData)
             navigation.pop();
         }
-        catch(err){
+        catch (err) {
             console.log(err)
         }
     }
+
+
+
+    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow',() => {
+                setKeyboardVisible(true); 
+            }
+        );
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide',() => {
+                setKeyboardVisible(false); 
+            }
+        );
+
+        return () => {
+            keyboardDidHideListener.remove();
+            keyboardDidShowListener.remove();
+        };
+    }, []);
+
+
+    const [isPlacesAutocompleteVisible, setIsPlacesAutocompleteVisible] = useState(false)
+    const showPlacesAutocomplete = () => setIsPlacesAutocompleteVisible(true)
+
+
     if (!fontsLoaded) return <AppLoading />
     return (
-        <SafeAreaView style={styles.screen}>
-            <View style={styles.tabContainer}>
-                <Pressable onPress = {()=>navigation.pop()}style={{ alignSelf: 'center', padding: 5 }}>
-                    <XSign  />
-                </Pressable>
-                <Button
-                    text="connect"
-                    priority={isValidPost(postText) ? 1 : 2}
-                    onPress={handlePublish}
-                    extraStyles={isValidPost(postText)  ? styles.connectButton : {...styles.connectButton, opacity: 0.4} }
-                    width={100}
-                    paddingHorizontal={0}
-                    height={32}
-                />
-            </View>
-
-            <TextInput
-                style={styles.postText}
-                value={postText}
-                placeholder="Type your missed connection!"
-                placeholderTextColor="#9c9c9c"
-                onChangeText={handlePostText}
-                selectionColor="#F17F8C"
-                multiline
-                textAlignVertical='top'
-            />
-
-            <View style={styles.metaDataContainer}>
-
-                <View style={styles.metaDataItem}>
-                    <SearchSvg fill ={theme.colors.primary} style = {styles.icon}/>
-                    <View style={styles.input}>
-                        <LocationTextInput callback = {handleLocationCallBack} style = {LocationTextInputStyles(theme, Dimensions.get('window').width)}/>
-                    </View>
+        <KeyboardAvoidingView behavior='padding'> 
+            <SafeAreaView style={styles.screen}>{
+                !isPlacesAutocompleteVisible ?
+                <> 
+                <View style={styles.tabContainer}>
+                    <Pressable onPress={() => navigation.pop()} style={{ alignSelf: 'center', padding: 5 }}>
+                        <XSign />
+                    </Pressable>
+                    <Button
+                        text="connect"
+                        priority={isValidPost(postText) ? 1 : 2}
+                        onPress={handlePublish}
+                        extraStyles={isValidPost(postText) ? styles.connectButton : { ...styles.connectButton, opacity: 0.4 }}
+                        width={100}
+                        paddingHorizontal={0}
+                        height={32}
+                    />
                 </View>
 
-                {/* <View style={{...styles.metaDataItem, borderBottomWidth: 0}}>
-                    <Clock fill ={theme.colors.primary} style = {styles.icon}/>
-                    <View style={styles.input}>
-                        Text
-                    </View>
-                </View> */}
-            </View>
-        </SafeAreaView>
+                <TextInput
+                    style={styles.postText}
+                    value={postText}
+                    placeholder="Type your missed connection!"
+                    placeholderTextColor="#9c9c9c"
+                    onChangeText={handlePostText}
+                    selectionColor="#F17F8C"
+                    multiline
+                    textAlignVertical='top'
+                    autoFocus
+                />
 
+
+                <View style={styles.metaDataContainer(isKeyboardVisible)}>
+
+                    <View style={styles.metaDataItem}>
+                        <SearchSvg fill={theme.colors.primaryExtraLight} style={styles.icon} />
+                        <Pressable style={styles.inputButton(isKeyboardVisible)} onPressIn= {showPlacesAutocomplete}>
+                            <Text numberOfLines = {1} style={styles.inputText}>{!location.mainText.trim() ? "where did it happen?" : location.mainText}</Text>
+                        </Pressable>
+                    </View>
+
+                    <View style={styles.metaDataItem}>
+                        <Clock fill={theme.colors.primaryExtraLight} style={styles.icon} />
+                        <Pressable style={styles.inputButton(isKeyboardVisible)}>
+                            <Text numberOfLines={1} style={styles.inputText}>when?</Text>
+                        </Pressable>
+                    </View>
+                </View>
+                </>
+                :
+                <PlacesAutocomplete 
+                    placeholderText = "where did it happen"
+                    autoFocus
+                    onKeyboardDidHide = {()=> setIsPlacesAutocompleteVisible(false)}
+                    onSelectPrediction = {(data)=> {
+                        setIsPlacesAutocompleteVisible(false); 
+                        setLocation(data);
+                    }}
+                    />
+            }
+            </SafeAreaView>
+            </KeyboardAvoidingView>
     )
 }
-
-
-const LocationTextInputStyles = (theme, vw)=>({
-    container: {
-        position: 'relative',
-        flexDirection: 'column-reverse',
-    },
-    textInput:{
-        fontSize: 18,
-        color: theme.colors.faint,
-        paddingVertical: 0,
-        fontFamily: 'Poppins_400Regular',
-        borderRadius: 10,
-        borderWidth: 2,
-        borderColor:'#E1E1E1'
-    },
-    listView: {
-        borderRadius: 10,
-        borderWidth: 3,
-        borderColor: theme.colors.faint,
-        backgroundColor: 'white',
-        width: 0.92 * vw,
-        right: 0.27 * vw
-    },
-    row: {
-        borderRadius: 10,
-        zIndex: 100
-    },
-    description: {
-        fontFamily: 'Poppins_400Regular'
-    }
-})
 
 const createStyles = (theme, vw) => (StyleSheet.create({
     screen: {
         height: "100%",
         paddingHorizontal: 30,
-        justifyContent: "flex-end",
-        backgroundColor:"white"
+        backgroundColor: "white"
     },
-    connectButton: { 
+    connectButton: {
         alignSelf: 'center',
         top: -3
     },
@@ -163,43 +171,39 @@ const createStyles = (theme, vw) => (StyleSheet.create({
         lineHeight: 30,
         fontSize: 20,
     },
-    metaDataContainer: {
+    metaDataContainer: (isKeyboardVisible) => ({
         paddingBottom: 15,
-        width: 1 * vw,
+        width: 0.92 * vw,
         paddingHorizontal: "8%",
-        alignSelf: 'center'
-    },
+        alignSelf: 'center',
+        justifyContent: 'flex-end',
+        flexDirection: isKeyboardVisible ? 'row' : 'column',
+    }),
     metaDataItem: {
         paddingTop: 8,
-        alignContent: 'flex-start',
         alignItems: 'center',
-        justifyContent: 'space-around',
+        justifyContent: "flex-start",
         flexDirection: 'row',
-        width: 0.92 * vw, 
         alignSelf: 'center',
-        paddingHorizontal: 0.08 * vw,
+        marginTop: 5
     },
     icon: {
-        paddingLeft: 60,
 
     },
-    input: {
-        alignItems: 'center',
-        flexDirection: 'row',
+    inputButton: (isKeyboardVisible)=> ({
+        borderRadius: 10,
+        borderWidth: 2,
+        borderColor: "#C4C4C4",
+        paddingTop: 10,
+        paddingBottom: 7,
+        paddingHorizontal: 10,
+        marginLeft: 0.05 * vw,
+        width: isKeyboardVisible ? "60%" : "100%"
+    }),
+    inputText: {
+        fontFamily: "Poppins_400Regular",
+        fontSize: 17,
+        color: "#AFAFAF",
     },
-    metadataTextTitle: {
-        fontFamily: 'Poppins_400Regular',
-        color: theme.colors.primary,
-        fontSize: 18,
-        paddingRight: 10
-    },
-    dataPickerCta:{
-        fontFamily: 'Poppins_400Regular',
-        color: theme.colors.faint,
-        fontSize:18,
-        lineHeight:30,
-
-    },
-
 
 }))

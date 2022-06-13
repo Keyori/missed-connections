@@ -37,10 +37,11 @@ router.get('/:pid', async function (req, res,) {
 });
 
 router.get("/", async function (req, res) {
-    const posts = req.query.startPost === undefined ? 
-    await Post.findAll()
-    :
-    await sequelize.query("UPDATE users SET y = 42 WHERE x = 12")[0]
+    let posts;
+    posts = await Post.findAll({where: {pid:{[Op.not]:req.query.startPost }}})
+
+    if(req.query.startPost !== undefined)
+    posts.unshift(await Post.findOne({where: {pid: req.query.startPost}}) )  
     
     res.send(posts);
 })
