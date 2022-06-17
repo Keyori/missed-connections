@@ -27,7 +27,7 @@ export default function Feed({ route, navigation }) {
     const [posts, setPosts] = useState([]);
     useEffect(async () => {
         try{
-            const {data} = await axios.get(`http://192.168.1.237:3000/api/1.0/posts?startPost=${route.params.pid}`) ;
+            const {data} = await axios.get(`http://192.168.162.172:3000/api/1.0/posts?startPost=${route.params.pid}`) ;
             setPosts(data)
 
         }catch(err){

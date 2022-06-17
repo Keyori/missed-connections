@@ -14,7 +14,7 @@ import { ThemeContext } from '../App'
 const PLACES_API_KEY = "AIzaSyDGf63pZ431mpQEyLVoVI204wrq4te_aGc"
 
 
-export default function PlacesAutocomplete({ navigation, placeholderText="Search Location", onSelectPrediction, onKeyboardDidHide=()=>{}, displaySearchIcon=true, autoFocus, width = 0.92}) {
+export default function PlacesAutocomplete({ navigation, placeholderText="Search Location", onSelectPrediction, onKeyboardDidHide=()=>{}, displaySearchIcon=true, includesPlacePicker = false, autoFocus, width = 0.92}) {
 
     const theme = useContext(ThemeContext)
     const styles = createStyles(theme, Dimensions.get('window').width, Dimensions.get('window').height, width)
@@ -53,7 +53,10 @@ export default function PlacesAutocomplete({ navigation, placeholderText="Search
      * listen to dropdown.query and fetches predictions from the google place api.
      * includes throttling that limiting api calls to 1 per 800ms max. 
      */
-    const [predictions, setPredictions] = useState([])
+    const placePickerPrediction ={
+        isPlacePickerPrediction: true
+    }
+    const [predictions, setPredictions] = useState(()=> includesPlacePicker ? [placePickerPrediction]: [])
     const dropdownTimeoutId = useRef()
     useEffect(() => {
         clearTimeout(dropdownTimeoutId.current)
@@ -64,7 +67,7 @@ export default function PlacesAutocomplete({ navigation, placeholderText="Search
             //https://maps.googleapis.com/maps/api/place/autocomplete/json
             let result;
             try {
-                const { data } = await axios.get("http://192.168.1.237:3000", {
+                const { data } = await axios.get("http://192.168.162.172:3000", {
                     params: {
                         key: PLACES_API_KEY,
                         input: dropdown.query.trim(),
@@ -80,6 +83,7 @@ export default function PlacesAutocomplete({ navigation, placeholderText="Search
                 console.trace(err);
                 result = ['error'];
             }
+            if(includesPlacePicker) result.push(placePickerPrediction)
             setPredictions(result)
             return () => clearTimeout(dropdownTimeoutId.current)
         }, 800)
@@ -124,7 +128,7 @@ export default function PlacesAutocomplete({ navigation, placeholderText="Search
         return () => {keyboardDidHideListener.remove();};
       }, []);
 
-
+      const handleFocus = ()=> setDropdown(old => ({...old, isOpen: includesPlacePicker}))
 
 
     if (!fontsLoaded) return <AppLoading />
@@ -142,17 +146,33 @@ export default function PlacesAutocomplete({ navigation, placeholderText="Search
                     onKeyPress={handleKeyPress}
                     onChangeText={handleQuery}
                     autoFocus = {autoFocus}
+                    onFocus = {handleFocus}
                 />
                 <Text style={{ ...styles.responseBox(displaySearchIcon), ...styles.shadowBox }}></Text>
             </View>
             {
-                dropdown.isOpen && predictions.length > 1 && predictions[0] !== "error" &&
+                dropdown.isOpen && predictions[0] !== "error" &&
                 <View style={styles.predictionsContainer}>
                     <FlatList
                         data={predictions}
                         keyboardShouldPersistTaps="always"
                         keyExtractor={item => item.place_id}
                         renderItem={({ item, index }) => (
+                        <View key={index}> 
+                            {
+                            item.isPlacePickerPrediction ? 
+                            
+                            <Pressable style={styles.predictionContainer(index)} onPressIn={()=> console.log('start handling place picker : )')} >
+                                <View style={[styles.iconContainer, styles.iconContainerPlacePicker]}>
+                                    <PlaceIcon types = {[]} fill = "#ED5668"/>
+                                </View>
+                                <View style={styles.textContainer}>
+                                    <Text style={[styles.mainText, styles.mainTextPlacePicker]} numberOfLines={1} >pick location on map</Text>
+                                </View>
+                            </Pressable>
+                            
+                            :
+
                             <Pressable style={styles.predictionContainer(index)} onPressIn={() => handlePredictionPress(item)}>
                                 <View style={styles.iconContainer}>
                                     <PlaceIcon types = {item.types} fill = "#8D8D8D"/>
@@ -161,7 +181,9 @@ export default function PlacesAutocomplete({ navigation, placeholderText="Search
                                     <Text style={styles.mainText} numberOfLines={1} >{item.structured_formatting.main_text}</Text>
                                     <Text style={styles.secondaryText} numberOfLines={1} >{item.terms.slice(1, 3).map(el => el.value).join(", ")} </Text>
                                 </View>
-                            </Pressable>
+                            </Pressable> 
+                            }                        
+                        </View>
                         )}
                     />
                 </View>
@@ -206,6 +228,9 @@ const createStyles = (theme, vw, vh, width, ) => (StyleSheet.create({
         color: "#404040",
         height: 30
     },
+    mainTextPlacePicker: {
+        bottom: 5
+    },
     secondaryText: {
         fontFamily: "Poppins_400Regular",
         fontSize: 12,
@@ -221,7 +246,9 @@ const createStyles = (theme, vw, vh, width, ) => (StyleSheet.create({
         alignItems: "center",
         justifyContent: 'center'
     },
-
+    iconContainerPlacePicker: {
+        backgroundColor: "#FACDD3"
+    },
     icon: {
         position: 'absolute',
         left: 18,

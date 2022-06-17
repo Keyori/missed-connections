@@ -1,7 +1,7 @@
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useContext, useState, useEffect, useRef } from 'react'
 import { useFonts, Poppins_400Regular, Poppins_500Medium } from '@expo-google-fonts/poppins'
 import AppLoading from 'expo-app-loading'
-import { View, Text, StyleSheet, Dimensions, TextInput, Pressable, Keyboard, KeyboardAvoidingView } from 'react-native'
+import { View, Text, ScrollView, StyleSheet, Dimensions, TextInput, Pressable, Keyboard, KeyboardAvoidingView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import axios from 'axios'
 
@@ -16,8 +16,28 @@ import Clock from '../assets/images/clock'
 import * as SecureStore from 'expo-secure-store';
 
 export default function CreatePost({ navigation }) {
+
+    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+            setKeyboardVisible(true);
+        }
+        );
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyboardVisible(false);
+        }
+        );
+
+        return () => {
+            keyboardDidHideListener.remove();
+            keyboardDidShowListener.remove();
+        };
+    }, []);
+
     const theme = useContext(ThemeContext)
-    const styles = createStyles(theme, Dimensions.get('window').width)
+    const { width: vw, height: vh } = Dimensions.get('window')
+    const styles = createStyles(theme, vw, vh, isKeyboardVisible)
 
     let [fontsLoaded] = useFonts({
         Poppins_400Regular,
@@ -56,35 +76,30 @@ export default function CreatePost({ navigation }) {
 
 
 
-    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
-    useEffect(() => {
-        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow',() => {
-                setKeyboardVisible(true); 
-            }
-        );
-        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide',() => {
-                setKeyboardVisible(false); 
-            }
-        );
-
-        return () => {
-            keyboardDidHideListener.remove();
-            keyboardDidShowListener.remove();
-        };
-    }, []);
 
 
     const [isPlacesAutocompleteVisible, setIsPlacesAutocompleteVisible] = useState(false)
     const showPlacesAutocomplete = () => setIsPlacesAutocompleteVisible(true)
 
 
+
+    //autoFocus textInput on first render. 
+    const textInputRef = useRef();
+    useEffect(() => {
+        setTimeout(() => {
+            if (textInputRef.current !== undefined) {
+                textInputRef.current.focus()
+            }
+        }, 100)
+
+    }, [])
+
+
     if (!fontsLoaded) return <AppLoading />
     return (
-        <KeyboardAvoidingView behavior='padding'> 
-            <SafeAreaView style={styles.screen}>{
-                !isPlacesAutocompleteVisible ?
-                <> 
+        <KeyboardAvoidingView behavior='padding'>
+            <SafeAreaView style={styles.screen}>
                 <View style={styles.tabContainer}>
                     <Pressable onPress={() => navigation.pop()} style={{ alignSelf: 'center', padding: 5 }}>
                         <XSign />
@@ -109,44 +124,52 @@ export default function CreatePost({ navigation }) {
                     selectionColor="#F17F8C"
                     multiline
                     textAlignVertical='top'
-                    autoFocus
+                    ref={textInputRef}
                 />
 
 
-                <View style={styles.metaDataContainer(isKeyboardVisible)}>
+                <ScrollView 
+                    style={styles.metaDataScrollView} 
+                    contentContainerStyle={styles.metaDataContainer}
+                    horizontal 
+                    showsHorizontalScrollIndicator = {false}
+                    >
 
-                    <View style={styles.metaDataItem}>
+                    <View style={styles.metaDataItem("location")}>
                         <SearchSvg fill={theme.colors.primaryExtraLight} style={styles.icon} />
-                        <Pressable style={styles.inputButton(isKeyboardVisible)} onPressIn= {showPlacesAutocomplete}>
-                            <Text numberOfLines = {1} style={styles.inputText}>{!location.mainText.trim() ? "where did it happen?" : location.mainText}</Text>
+                        <Pressable style={[styles.inputButton, {/*width: 1 * vw*/ }]} onPressIn={showPlacesAutocomplete}>
+                            <Text numberOfLines={1} style={styles.inputText}>{!location.mainText.trim() ? "where did it happen?" : location.mainText}</Text>
                         </Pressable>
                     </View>
 
-                    <View style={styles.metaDataItem}>
+                    <View style={styles.metaDataItem("date")}>
                         <Clock fill={theme.colors.primaryExtraLight} style={styles.icon} />
-                        <Pressable style={styles.inputButton(isKeyboardVisible)}>
+                        <Pressable style={styles.inputButton}>
                             <Text numberOfLines={1} style={styles.inputText}>when?</Text>
                         </Pressable>
                     </View>
-                </View>
-                </>
-                :
-                <PlacesAutocomplete 
-                    placeholderText = "where did it happen"
-                    autoFocus
-                    onKeyboardDidHide = {()=> setIsPlacesAutocompleteVisible(false)}
-                    onSelectPrediction = {(data)=> {
-                        setIsPlacesAutocompleteVisible(false); 
-                        setLocation(data);
-                    }}
-                    />
-            }
+                </ScrollView>
+                {isPlacesAutocompleteVisible &&
+                    <SafeAreaView style={styles.placesAutocompleteContainer}>
+                        <PlacesAutocomplete
+                            placeholderText="where did it happen"
+                            autoFocus
+                            width={0.9}
+                            includesPlacePicker
+                            onKeyboardDidHide={() => setIsPlacesAutocompleteVisible(false)}
+                            onSelectPrediction={(data) => {
+                                setIsPlacesAutocompleteVisible(false);
+                                setLocation(data);
+                            }}
+                        />
+                    </SafeAreaView>
+                }
             </SafeAreaView>
-            </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
     )
 }
 
-const createStyles = (theme, vw) => (StyleSheet.create({
+const createStyles = (theme, vw, vh, isKeyboardVisible) => (StyleSheet.create({
     screen: {
         height: "100%",
         paddingHorizontal: 30,
@@ -165,45 +188,54 @@ const createStyles = (theme, vw) => (StyleSheet.create({
         borderBottomWidth: 2,
     },
     postText: {
-        flex: 8,
         marginTop: 100,
         fontFamily: 'Poppins_500Medium',
         lineHeight: 30,
         fontSize: 20,
+        flex: isKeyboardVisible? 20 : 5
     },
-    metaDataContainer: (isKeyboardVisible) => ({
-        paddingBottom: 15,
-        width: 0.92 * vw,
-        paddingHorizontal: "8%",
+    metaDataScrollView: { 
         alignSelf: 'center',
-        justifyContent: 'flex-end',
+        width: 1 * vw,
+        paddingHorizontal: 0.04 * vw
+    },
+    metaDataContainer: {
+        paddingBottom: isKeyboardVisible ? 0 : 15,
         flexDirection: isKeyboardVisible ? 'row' : 'column',
-    }),
-    metaDataItem: {
+    },
+    metaDataItem:(metaDataName) =>( {
         paddingTop: 8,
-        alignItems: 'center',
-        justifyContent: "flex-start",
+        alignItems: 'flex-end',
+        flex: 1,
         flexDirection: 'row',
-        alignSelf: 'center',
-        marginTop: 5
-    },
+        marginTop: 5,
+        width: !isKeyboardVisible?  0.9 * vw : metaDataName === "location" ? 0.75 * vw : 0.3 * vw,
+    }),
     icon: {
-
+        alignSelf: 'center'
     },
-    inputButton: (isKeyboardVisible)=> ({
+    inputButton: {
         borderRadius: 10,
         borderWidth: 2,
-        borderColor: "#C4C4C4",
+        borderColor: isKeyboardVisible ? "transparent" : "#C4C4C4",
         paddingTop: 10,
         paddingBottom: 7,
         paddingHorizontal: 10,
-        marginLeft: 0.05 * vw,
-        width: isKeyboardVisible ? "60%" : "100%"
-    }),
+        marginLeft: isKeyboardVisible ? 0.01 * vw : 0.05 * vw,
+        flex: 1,
+        height: 52,
+        alignSelf: 'center'
+    },
     inputText: {
         fontFamily: "Poppins_400Regular",
         fontSize: 17,
         color: "#AFAFAF",
     },
+    placesAutocompleteContainer: {
+        backgroundColor: 'white',
+        height: 1 * vh,
+        width: 1 * vw,
+        position: 'absolute'
+    }
 
 }))
