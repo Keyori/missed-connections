@@ -4,6 +4,7 @@ import { Dimensions, TextInput, StyleSheet, View, Text, FlatList, Pressable, Key
 import axios from 'axios';
 import { useFonts, Poppins_400Regular, Poppins_500Medium } from '@expo-google-fonts/poppins';
 import AppLoading from 'expo-app-loading';
+import { useNavigation } from '@react-navigation/native';
 
 
 import PlaceIcon from "../assets/images/place_picker_icon"
@@ -14,11 +15,12 @@ import { ThemeContext } from '../App'
 const PLACES_API_KEY = "AIzaSyDGf63pZ431mpQEyLVoVI204wrq4te_aGc"
 
 
-export default function PlacesAutocomplete({ navigation, placeholderText="Search Location", onSelectPrediction, onKeyboardDidHide=()=>{}, displaySearchIcon=true, includesPlacePicker = false, autoFocus, width = 0.92}) {
+export default function PlacesAutocomplete({ placeholderText="Search Location", onSelectPrediction, onKeyboardDidHide=()=>{}, displaySearchIcon=true, includesPlacePicker = false, autoFocus, width = 0.92}) {
 
     const theme = useContext(ThemeContext)
     const styles = createStyles(theme, Dimensions.get('window').width, Dimensions.get('window').height, width)
     let [fontsLoaded] = useFonts({ Poppins_400Regular, Poppins_500Medium });
+    const navigation = useNavigation();
 
 
 
@@ -67,7 +69,7 @@ export default function PlacesAutocomplete({ navigation, placeholderText="Search
             //https://maps.googleapis.com/maps/api/place/autocomplete/json
             let result;
             try {
-                const { data } = await axios.get("http://192.168.162.172:3000", {
+                const { data } = await axios.get("http://192.168.100.195:3000", {
                     params: {
                         key: PLACES_API_KEY,
                         input: dropdown.query.trim(),
@@ -97,7 +99,7 @@ export default function PlacesAutocomplete({ navigation, placeholderText="Search
      * when a user selects a prediction set the dropdown.query to the place name and fetch its coordinates using google geocode api. 
      */
     const handlePredictionPress = async (prediction) => {
-        setDropdown(old => ({ query: prediction.structured_formatting.main_text, isOpen: false }))
+        setDropdown(old => ({ query: prediction.structured_formatting.main_text, isOpen: true }))
         try {
             const { data } = await axios.get("https://maps.googleapis.com/maps/api/geocode/json?", {
                 params: {
@@ -114,6 +116,16 @@ export default function PlacesAutocomplete({ navigation, placeholderText="Search
             console.trace(err)
         }
     } 
+
+
+
+    /**
+     * place prediction press handler. 
+     */
+    const handlePlacePickerPredictionPress = e => {
+        navigation.navigate("placePickerMap")
+    }
+
 
 
     /**
@@ -162,7 +174,7 @@ export default function PlacesAutocomplete({ navigation, placeholderText="Search
                             {
                             item.isPlacePickerPrediction ? 
                             
-                            <Pressable style={styles.predictionContainer(index)} onPressIn={()=> console.log('start handling place picker : )')} >
+                            <Pressable style={styles.predictionContainer(index,  item.isPlacePickerPrediction)} onPressIn={handlePlacePickerPredictionPress} >
                                 <View style={[styles.iconContainer, styles.iconContainerPlacePicker]}>
                                     <PlaceIcon types = {[]} fill = "#ED5668"/>
                                 </View>
@@ -210,9 +222,9 @@ const createStyles = (theme, vw, vh, width, ) => (StyleSheet.create({
         borderBottomWidth: 2,
         backgroundColor: 'white',
     },
-    predictionContainer: (i) => ({
+    predictionContainer: (i, isPlacePickerPrediction = false) => ({
         flexDirection: 'row',
-        paddingVertical: 9,
+        paddingVertical: isPlacePickerPrediction ? 14 :  9,
         alignItems: 'center',
         borderColor: "#F6F6F6",
         borderTopWidth: i === 0 ? 0 : 2,
@@ -229,7 +241,8 @@ const createStyles = (theme, vw, vh, width, ) => (StyleSheet.create({
         height: 30
     },
     mainTextPlacePicker: {
-        bottom: 5
+        bottom: 5,
+    
     },
     secondaryText: {
         fontFamily: "Poppins_400Regular",

@@ -17,6 +17,8 @@ import { theme, darkTheme } from './Theme'
 import CreatePost from './routes/CreatePost';
 import RegisterFinal from './routes/RegisterFinal';
 import DirectMessaging from './routes/DirectMessaging';
+import PlacePickerMap from './routes/PlacePickerMap'
+
 
 const Stack = createNativeStackNavigator();
 export const ThemeContext = createContext({})
@@ -52,7 +54,7 @@ export default function App() {
           <Stack.Screen name="verifyEmail" component={VerifyEmail} />
           <Stack.Screen name="feed" component={Feed} />
           <Stack.Screen name="profile" component={DirectMessaging} />
-          
+          <Stack.Screen name = "placePickerMap" component={PlacePickerMap} />
         </Stack.Navigator>
       </NavigationContainer>
     </ThemeContext.Provider>

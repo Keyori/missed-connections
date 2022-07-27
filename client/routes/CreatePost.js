@@ -132,6 +132,7 @@ export default function CreatePost({ navigation }) {
                     style={styles.metaDataScrollView} 
                     contentContainerStyle={styles.metaDataContainer}
                     horizontal 
+                    keyboardShouldPersistTaps= "always"
                     showsHorizontalScrollIndicator = {false}
                     >
 
@@ -144,8 +145,8 @@ export default function CreatePost({ navigation }) {
 
                     <View style={styles.metaDataItem("date")}>
                         <Clock fill={theme.colors.primaryExtraLight} style={styles.icon} />
-                        <Pressable style={styles.inputButton}>
-                            <Text numberOfLines={1} style={styles.inputText}>when?</Text>
+                        <Pressable style={styles.inputButton} onPressIn={()=> {console.log("insert time picker here")}}>
+                            <Text style={styles.inputText}>when?</Text>
                         </Pressable>
                     </View>
                 </ScrollView>
@@ -158,8 +159,8 @@ export default function CreatePost({ navigation }) {
                             includesPlacePicker
                             onKeyboardDidHide={() => setIsPlacesAutocompleteVisible(false)}
                             onSelectPrediction={(data) => {
-                                setIsPlacesAutocompleteVisible(false);
                                 setLocation(data);
+                                setIsPlacesAutocompleteVisible(false);
                             }}
                         />
                     </SafeAreaView>
@@ -172,7 +173,7 @@ export default function CreatePost({ navigation }) {
 const createStyles = (theme, vw, vh, isKeyboardVisible) => (StyleSheet.create({
     screen: {
         height: "100%",
-        paddingHorizontal: 30,
+        paddingHorizontal: 0.06 * vw,
         backgroundColor: "white"
     },
     connectButton: {
@@ -180,12 +181,13 @@ const createStyles = (theme, vw, vh, isKeyboardVisible) => (StyleSheet.create({
         top: -3
     },
     tabContainer: {
+        marginTop: 10,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignContent: 'flex-start',
         height: 70,
-        borderBottomColor: "#e6e6e6",
-        borderBottomWidth: 2,
+        borderBottomColor: "#c4c4c471",
+        borderBottomWidth: 1,
     },
     postText: {
         marginTop: 100,
@@ -197,7 +199,7 @@ const createStyles = (theme, vw, vh, isKeyboardVisible) => (StyleSheet.create({
     metaDataScrollView: { 
         alignSelf: 'center',
         width: 1 * vw,
-        paddingHorizontal: 0.04 * vw
+        paddingHorizontal: 0.04 * vw,
     },
     metaDataContainer: {
         paddingBottom: isKeyboardVisible ? 0 : 15,
@@ -206,10 +208,10 @@ const createStyles = (theme, vw, vh, isKeyboardVisible) => (StyleSheet.create({
     metaDataItem:(metaDataName) =>( {
         paddingTop: 8,
         alignItems: 'flex-end',
-        flex: 1,
         flexDirection: 'row',
         marginTop: 5,
-        width: !isKeyboardVisible?  0.9 * vw : metaDataName === "location" ? 0.75 * vw : 0.3 * vw,
+        flex: 1,
+        width: isKeyboardVisible? "auto" : 0.9 * vw,
     }),
     icon: {
         alignSelf: 'center'
@@ -217,14 +219,15 @@ const createStyles = (theme, vw, vh, isKeyboardVisible) => (StyleSheet.create({
     inputButton: {
         borderRadius: 10,
         borderWidth: 2,
-        borderColor: isKeyboardVisible ? "transparent" : "#C4C4C4",
-        paddingTop: 10,
-        paddingBottom: 7,
+        borderColor: isKeyboardVisible ? "transparent" : "#c4c4c471",  
+        paddingTop: isKeyboardVisible ? 0 :  10,
+        paddingBottom: isKeyboardVisible ? 0 : 7,
         paddingHorizontal: 10,
         marginLeft: isKeyboardVisible ? 0.01 * vw : 0.05 * vw,
+        marginRight: isKeyboardVisible ? 0.1 * vw : 0 ,
         flex: 1,
-        height: 52,
-        alignSelf: 'center'
+        height: isKeyboardVisible ? 35 : 52,
+        alignSelf: 'center',
     },
     inputText: {
         fontFamily: "Poppins_400Regular",
