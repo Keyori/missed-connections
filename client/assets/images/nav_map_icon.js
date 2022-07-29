@@ -1,6 +1,6 @@
 import * as React from "react"
 import Svg, { Path } from "react-native-svg"
-import { ThemeContext } from "../../App"
+import { ThemeContext } from "../../styles/ThemeContext"
 
 const NavMapIcon = (props) => {
   const theme = React.useContext(ThemeContext)

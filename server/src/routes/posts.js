@@ -38,7 +38,7 @@ router.get('/:pid', async function (req, res,) {
 
 router.get("/", async function (req, res) {
     let posts;
-    posts = await Post.findAll({where: {pid:{[Op.not]:req.query.startPost }}})
+    posts = await Post.findAll({limit: 10,order: sequelize.random(), where: {pid:{[Op.not]:req.query.startPost }}})
 
     if(req.query.startPost !== undefined)
     posts.unshift(await Post.findOne({where: {pid: req.query.startPost}}) )  

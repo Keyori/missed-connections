@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react'
 import { StyleSheet, Text, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { ThemeContext } from '../App'
+import { ThemeContext } from '../styles/ThemeContext'
 import axios from 'axios'
 
 

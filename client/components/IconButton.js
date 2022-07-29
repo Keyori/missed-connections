@@ -1,6 +1,6 @@
 import React, { cloneElement, useContext } from 'react'
 import { StyleSheet, Pressable, Text, View } from 'react-native'
-import { ThemeContext } from '../App';
+import { ThemeContext } from '../styles/ThemeContext';
 
 export default function IconButton({icon, buttonDimensions, extraStyles, priority=1, onPress= ()=>{} }) {
     

@@ -5,13 +5,15 @@ import { View, Text, ScrollView, StyleSheet, Dimensions, TextInput, Pressable, K
 import { SafeAreaView } from 'react-native-safe-area-context'
 import axios from 'axios'
 
+import DateTimePicker from '../components/DateTimePicker'
 import Button from '../components/Button'
 import RegisterInput from '../components/RegisterInput'
-import { ThemeContext } from '../App'
+import { ThemeContext } from '../styles/ThemeContext'
 import XSign from '../assets/images/x';
 import PlacesAutocomplete from '../components/PlacesAutocomplete'
 import SearchSvg from '../assets/images/search_icon'
 import Clock from '../assets/images/clock'
+
 
 import * as SecureStore from 'expo-secure-store';
 
@@ -49,7 +51,7 @@ export default function CreatePost({ navigation }) {
     const handlePostText = text => { setPostText(text) };
 
     const [location, setLocation] = useState({ mainText: '', geometry: { location: { lng: 0, lat: 0 } } });
-
+    const [dateTime, setDateTime] = useState(undefined);
 
     const isValidPost = postText => postText.length > 5
 
@@ -75,13 +77,15 @@ export default function CreatePost({ navigation }) {
     }
 
 
-
+    
 
 
 
     const [isPlacesAutocompleteVisible, setIsPlacesAutocompleteVisible] = useState(false)
     const showPlacesAutocomplete = () => setIsPlacesAutocompleteVisible(true)
-
+    
+    const [isDateTimePickerVisible, setIsDateTimePickerVisible] = useState(false)
+    const showDateTimePicker =() => setIsDateTimePickerVisible(true);
 
 
     //autoFocus textInput on first render. 
@@ -145,11 +149,12 @@ export default function CreatePost({ navigation }) {
 
                     <View style={styles.metaDataItem("date")}>
                         <Clock fill={theme.colors.primaryExtraLight} style={styles.icon} />
-                        <Pressable style={styles.inputButton} onPressIn={()=> {console.log("insert time picker here")}}>
-                            <Text style={styles.inputText}>when?</Text>
+                        <Pressable style={styles.inputButton} onPressIn={showDateTimePicker}>
+                            <Text style={styles.inputText}>{dateTime === undefined ? 'when?' : dateTime.format('h:mm A - D MMMM ')}</Text>
                         </Pressable>
                     </View>
                 </ScrollView>
+                
                 {isPlacesAutocompleteVisible &&
                     <SafeAreaView style={styles.placesAutocompleteContainer}>
                         <PlacesAutocomplete
@@ -164,6 +169,14 @@ export default function CreatePost({ navigation }) {
                             }}
                         />
                     </SafeAreaView>
+                }
+
+                {isDateTimePickerVisible &&
+                    <DateTimePicker onSelectDateTime={dateTime =>{
+                        setDateTime(dateTime)
+                        console.log(dateTime)
+                        setIsDateTimePickerVisible(false)
+                    }}/>
                 }
             </SafeAreaView>
         </KeyboardAvoidingView>

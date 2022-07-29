@@ -6,7 +6,7 @@ import SearchSvg from '../assets/images/search_icon'
 import Button from '../components/Button'
 import {SafeAreaView} from 'react-native-safe-area-context'
 
-import { ThemeContext } from '../App';
+import { ThemeContext } from '../styles/ThemeContext';
 import PlacesAutocomplete from './PlacesAutocomplete';
 
 export default function MapControls({animateToRegion}) {

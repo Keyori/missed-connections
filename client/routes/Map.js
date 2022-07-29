@@ -1,6 +1,6 @@
 import React, { useContext, useRef , useEffect} from 'react';
 import MapView, { Heatmap, Marker } from 'react-native-maps';
-import { StyleSheet, TextInput, View, FlatList, Image, ImageBackground, Dimensions } from 'react-native';
+import { StyleSheet, TextInput, View, Text, Image, ImageBackground, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Color from 'color';
 import axios from 'axios';
@@ -10,9 +10,9 @@ import MapControls from '../components/MapControls';
 import IconButton from '../components/IconButton'
 import MakePostSvg from '../assets/images/make_post_icon';
 import ExploreSvg from '../assets/images/explore_icon'
-import mapStyle from "../mapStyle.json"
+import mapStyle from "../styles/mapStyle.json"
 
-import { ThemeContext } from '../App';
+import { ThemeContext } from '../styles/ThemeContext';
 import { useState } from 'react/cjs/react.development';
 
 
@@ -23,7 +23,7 @@ export default function Map({ navigation }) {
   
   useEffect(async ()=>{
     try{
-      const {data} = await axios.get("http://192.168.100.195:3000/api/1.0/posts/map") ;
+      const {data} = await axios.get("http://192.168.1.237:3000/api/1.0/posts/map") ;
      setPosts(Object.entries(data) );
     }catch(err){
         console.log(err)
@@ -51,7 +51,6 @@ export default function Map({ navigation }) {
     const colorArr = [color.fade(0.8), color.fade(0.5), color.fade(0.2), color, color.lighten(0.2)]
     return colorArr.map(color => color.hsl().string())
   }
-
 
   return (
     <View style={styles.container}>

@@ -5,11 +5,11 @@ import axios from 'axios';
 import { useFonts, Poppins_400Regular, Poppins_500Medium } from '@expo-google-fonts/poppins';
 import AppLoading from 'expo-app-loading';
 import { useNavigation } from '@react-navigation/native';
-
+import { debounce } from 'throttle-debounce';
 
 import PlaceIcon from "../assets/images/place_picker_icon"
 import SearchSvg from '../assets/images/search_icon'
-import { ThemeContext } from '../App'
+import { ThemeContext } from '../styles/ThemeContext'
 
 //google places api key
 const PLACES_API_KEY = "AIzaSyDGf63pZ431mpQEyLVoVI204wrq4te_aGc"
@@ -56,39 +56,42 @@ export default function PlacesAutocomplete({ placeholderText="Search Location", 
      * includes throttling that limiting api calls to 1 per 800ms max. 
      */
     const placePickerPrediction ={
-        isPlacePickerPrediction: true
+        isPlacePickerPrediction: true,
+        id: 0,
     }
     const [predictions, setPredictions] = useState(()=> includesPlacePicker ? [placePickerPrediction]: [])
-    const dropdownTimeoutId = useRef()
+    const fetchPredictions = debounce(800, async () => {
+        //https://maps.googleapis.com/maps/api/place/autocomplete/json
+        let result;
+        try {
+            const { data } = await axios.get("http://192.168.1.237:3000", {
+                params: {
+                    key: PLACES_API_KEY,
+                    input: dropdown.query.trim(),
+                    language: 'en',
+                    location: '40.501666, -74.450201',
+                    radius: 5000,
+                    strictbounds: true,
+                }
+            })
+            result = data.predictions;
+        }
+        catch (err) {
+            console.trace(err);
+            result = ['error'];
+        }
+        if(includesPlacePicker) result.push(placePickerPrediction)
+        setPredictions(result)
+    })
+
+
+
     useEffect(() => {
-        clearTimeout(dropdownTimeoutId.current)
-
+        
         if (!dropdown.query.trim()) return
+        
+        fetchPredictions()
 
-        dropdownTimeoutId.current = setTimeout(async () => {
-            //https://maps.googleapis.com/maps/api/place/autocomplete/json
-            let result;
-            try {
-                const { data } = await axios.get("http://192.168.100.195:3000", {
-                    params: {
-                        key: PLACES_API_KEY,
-                        input: dropdown.query.trim(),
-                        language: 'en',
-                        location: '40.501666, -74.450201',
-                        radius: 5000,
-                        strictbounds: true,
-                    }
-                })
-                result = data.predictions;
-            }
-            catch (err) {
-                console.trace(err);
-                result = ['error'];
-            }
-            if(includesPlacePicker) result.push(placePickerPrediction)
-            setPredictions(result)
-            return () => clearTimeout(dropdownTimeoutId.current)
-        }, 800)
     }, [dropdown.query])
 
 
@@ -99,19 +102,19 @@ export default function PlacesAutocomplete({ placeholderText="Search Location", 
      * when a user selects a prediction set the dropdown.query to the place name and fetch its coordinates using google geocode api. 
      */
     const handlePredictionPress = async (prediction) => {
-        setDropdown(old => ({ query: prediction.structured_formatting.main_text, isOpen: true }))
+        //setDropdown(old => ({ query: prediction.structured_formatting.main_text, isOpen: true }))
         try {
-            const { data } = await axios.get("https://maps.googleapis.com/maps/api/geocode/json?", {
-                params: {
-                    key: PLACES_API_KEY,
-                    place_id: prediction.place_id,
-                }
-            })
-            const geometry =  {latitude: data.results[0].geometry.location.lat, longitude: data.results[0].geometry.location.lng}
-            
+            // const { data } = await axios.get("https://maps.googleapis.com/maps/api/geocode/json?", {
+            //     params: {
+            //         key: PLACES_API_KEY,
+            //         place_id: prediction.place_id,
+            //     }
+            // })
+            // const geometry =  {latitude: data.results[0].geometry.location.lat, longitude: data.results[0].geometry.location.lng}
+            //onSelectPrediction({...geometry, mainText: prediction.structured_formatting.main_text });
+
+            onSelectPrediction({geomtry: {latitude: 0, longitude: 0}, mainText: prediction.structured_formatting.main_text });
             Keyboard.dismiss()
-            onSelectPrediction({...geometry, mainText: prediction.structured_formatting.main_text });
-        
         } catch (err) {
             console.trace(err)
         }
@@ -168,9 +171,9 @@ export default function PlacesAutocomplete({ placeholderText="Search Location", 
                     <FlatList
                         data={predictions}
                         keyboardShouldPersistTaps="always"
-                        keyExtractor={item => item.place_id}
+                        keyExtractor={item => item.place_id === undefined ? item.id  : item.place_id}
                         renderItem={({ item, index }) => (
-                        <View key={index}> 
+                        <View> 
                             {
                             item.isPlacePickerPrediction ? 
                             

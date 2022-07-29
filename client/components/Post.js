@@ -5,7 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import AppLoading from 'expo-app-loading';
 import Color from 'color';
 
-import { ThemeContext } from '../App';
+import { ThemeContext } from '../styles/ThemeContext';
 
 
 

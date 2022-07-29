@@ -3,7 +3,7 @@ import { Platform, StyleSheet,KeyboardAvoidingView, FlatList } from 'react-nativ
 import { Poppins_400Regular, Poppins_400Regular_Italic, Poppins_500Medium, useFonts } from '@expo-google-fonts/poppins';
 import AppLoading from 'expo-app-loading';
 import IconButton from '../components/IconButton';
-import { ThemeContext } from '../App';
+import { ThemeContext } from '../styles/ThemeContext';
 
 import Post from "../components/Post"
 import axios from 'axios';
@@ -27,7 +27,7 @@ export default function Feed({ route, navigation }) {
     const [posts, setPosts] = useState([]);
     useEffect(async () => {
         try{
-            const {data} = await axios.get(`http://192.168.100.195:3000/api/1.0/posts?startPost=${route.params.pid}`) ;
+            const {data} = await axios.get(`http://192.168.1.237:3000/api/1.0/posts?startPost=${route.params.pid}`) ;
             setPosts(data)
 
         }catch(err){
