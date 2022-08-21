@@ -17,7 +17,7 @@ import RegisterInput from '../components/RegisterInput'
 
 
 
-export default function PlacePickerMap({navigation}) {
+export default function PlacePickerMap({route, navigation}) {
 
   const theme = useContext(ThemeContext)
   const styles = createStyles(theme, Dimensions.get('screen').width, Dimensions.get('screen').height)
@@ -49,10 +49,11 @@ export default function PlacePickerMap({navigation}) {
   
   const submitData = async () => {
     const data = {
-      name: locationName,
-      coredinates: (await mapRef.current.getCamera()).center
+      mainText: locationName,
+      geomtry: (await mapRef.current.getCamera()).center
     }
-    console.log(data);
+    navigation.goBack()
+    route.params.callback(data)
   }
 
 

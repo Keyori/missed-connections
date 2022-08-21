@@ -126,7 +126,10 @@ export default function PlacesAutocomplete({ placeholderText="Search Location", 
      * place prediction press handler. 
      */
     const handlePlacePickerPredictionPress = e => {
-        navigation.navigate("placePickerMap")
+        navigation.navigate("placePickerMap",{
+            callback: (data) => onSelectPrediction(data)
+        })
+        Keyboard.dismiss()
     }
 
 
