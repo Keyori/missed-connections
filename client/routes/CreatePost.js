@@ -1,23 +1,45 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect, useRef } from 'react'
 import { useFonts, Poppins_400Regular, Poppins_500Medium } from '@expo-google-fonts/poppins'
 import AppLoading from 'expo-app-loading'
-import { View, Text, StyleSheet, Dimensions, TextInput, Pressable } from 'react-native'
+import { View, Text, ScrollView, StyleSheet, Dimensions, TextInput, Pressable, Keyboard, KeyboardAvoidingView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import axios from 'axios'
 
+import DateTimePicker from '../components/DateTimePicker'
 import Button from '../components/Button'
 import RegisterInput from '../components/RegisterInput'
-import { ThemeContext } from '../App'
+import { ThemeContext } from '../styles/ThemeContext'
 import XSign from '../assets/images/x';
-import LocationTextInput from '../components/LocationTextInput'
+import PlacesAutocomplete from '../components/PlacesAutocomplete'
 import SearchSvg from '../assets/images/search_icon'
 import Clock from '../assets/images/clock'
+
 
 import * as SecureStore from 'expo-secure-store';
 
 export default function CreatePost({ navigation }) {
+
+    const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+            setKeyboardVisible(true);
+        }
+        );
+        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+            setKeyboardVisible(false);
+        }
+        );
+
+        return () => {
+            keyboardDidHideListener.remove();
+            keyboardDidShowListener.remove();
+        };
+    }, []);
+
     const theme = useContext(ThemeContext)
-    const styles = createStyles(theme, Dimensions.get('window').width)
+    const { width: vw, height: vh } = Dimensions.get('window')
+    const styles = createStyles(theme, vw, vh, isKeyboardVisible)
 
     let [fontsLoaded] = useFonts({
         Poppins_400Regular,
@@ -28,178 +50,208 @@ export default function CreatePost({ navigation }) {
     const [postText, setPostText] = useState("");
     const handlePostText = text => { setPostText(text) };
 
-    const [location, setLocation] = useState({description: '',geometry:{location:{lng:0,lat:0}}});
+    const [location, setLocation] = useState({ mainText: '', geometry: { location: { lng: 0, lat: 0 } } });
+    const [dateTime, setDateTime] = useState(undefined);
 
-    const handleLocationCallBack = locationObj => {
-        setLocation(locationObj)
-    }
     const isValidPost = postText => postText.length > 5
 
     async function handlePublish() {
         console.log(postText)
-        try{
+        try {
             const sessionId = await SecureStore.getItemAsync("sessionId");
             console.log(sessionId)
             const responseData = await axios.post("http://localhost:3000/api/posts", {
                 sessionId: sessionId,
                 content: postText,
                 longitude: location.geometry.location.lng,
-                latitude:location.geometry.location.lat,
-                location: location.description,
+                latitude: location.geometry.location.lat,
+                location: location.mainText,
                 campus: -1,
             })
             console.log(responseData)
             navigation.pop();
         }
-        catch(err){
+        catch (err) {
             console.log(err)
         }
     }
+
+
+    
+
+
+
+    const [isPlacesAutocompleteVisible, setIsPlacesAutocompleteVisible] = useState(false)
+    const showPlacesAutocomplete = () => setIsPlacesAutocompleteVisible(true)
+    
+    const [isDateTimePickerVisible, setIsDateTimePickerVisible] = useState(false)
+    const showDateTimePicker =() => setIsDateTimePickerVisible(true);
+
+
+    //autoFocus textInput on first render. 
+    const textInputRef = useRef();
+    useEffect(() => {
+        setTimeout(() => {
+            if (textInputRef.current !== undefined) {
+                textInputRef.current.focus()
+            }
+        }, 100)
+
+    }, [])
+
+
     if (!fontsLoaded) return <AppLoading />
     return (
-        <SafeAreaView style={styles.screen}>
-            <View style={styles.tabContainer}>
-                <Pressable onPress = {()=>navigation.pop()}style={{ alignSelf: 'center', padding: 5 }}>
-                    <XSign  />
-                </Pressable>
-                <Button
-                    text="connect"
-                    priority={isValidPost(postText) ? 1 : 2}
-                    onPress={handlePublish}
-                    extraStyles={isValidPost(postText)  ? styles.connectButton : {...styles.connectButton, opacity: 0.4} }
-                    width={100}
-                    paddingHorizontal={0}
-                    height={32}
-                />
-            </View>
-
-            <TextInput
-                style={styles.postText}
-                value={postText}
-                placeholder="Type your missed connection!"
-                placeholderTextColor="#9c9c9c"
-                onChangeText={handlePostText}
-                selectionColor="#F17F8C"
-                multiline
-                textAlignVertical='top'
-            />
-
-            <View style={styles.metaDataContainer}>
-
-                <View style={styles.metaDataItem}>
-                    <SearchSvg fill ={theme.colors.primary} style = {styles.icon}/>
-                    <View style={styles.input}>
-                        <LocationTextInput callback = {handleLocationCallBack} style = {LocationTextInputStyles(theme, Dimensions.get('window').width)}/>
-                    </View>
+        <KeyboardAvoidingView behavior='padding'>
+            <SafeAreaView style={styles.screen}>
+                <View style={styles.tabContainer}>
+                    <Pressable onPress={() => navigation.pop()} style={{ alignSelf: 'center', padding: 5 }}>
+                        <XSign />
+                    </Pressable>
+                    <Button
+                        text="connect"
+                        priority={isValidPost(postText) ? 1 : 2}
+                        onPress={handlePublish}
+                        extraStyles={isValidPost(postText) ? styles.connectButton : { ...styles.connectButton, opacity: 0.4 }}
+                        width={100}
+                        paddingHorizontal={0}
+                        height={32}
+                    />
                 </View>
 
-                {/* <View style={{...styles.metaDataItem, borderBottomWidth: 0}}>
-                    <Clock fill ={theme.colors.primary} style = {styles.icon}/>
-                    <View style={styles.input}>
-                        Text
-                    </View>
-                </View> */}
-            </View>
-        </SafeAreaView>
+                <TextInput
+                    style={styles.postText}
+                    value={postText}
+                    placeholder="Type your missed connection!"
+                    placeholderTextColor="#9c9c9c"
+                    onChangeText={handlePostText}
+                    selectionColor="#F17F8C"
+                    multiline
+                    textAlignVertical='top'
+                    ref={textInputRef}
+                />
 
+
+                <ScrollView 
+                    style={styles.metaDataScrollView} 
+                    contentContainerStyle={styles.metaDataContainer}
+                    horizontal 
+                    keyboardShouldPersistTaps= "always"
+                    showsHorizontalScrollIndicator = {false}
+                    >
+
+                    <View style={styles.metaDataItem("location")}>
+                        <SearchSvg fill={theme.colors.primaryExtraLight} style={styles.icon} />
+                        <Pressable style={[styles.inputButton, {/*width: 1 * vw*/ }]} onPressIn={showPlacesAutocomplete}>
+                            <Text numberOfLines={1} style={styles.inputText}>{!location.mainText.trim() ? "where did it happen?" : location.mainText}</Text>
+                        </Pressable>
+                    </View>
+
+                    <View style={styles.metaDataItem("date")}>
+                        <Clock fill={theme.colors.primaryExtraLight} style={styles.icon} />
+                        <Pressable style={styles.inputButton} onPressIn={showDateTimePicker}>
+                            <Text style={styles.inputText}>{dateTime === undefined ? 'when?' : dateTime.format('h:mm A - D MMMM ')}</Text>
+                        </Pressable>
+                    </View>
+                </ScrollView>
+                
+                {isPlacesAutocompleteVisible &&
+                    <SafeAreaView style={styles.placesAutocompleteContainer}>
+                        <PlacesAutocomplete
+                            placeholderText="where did it happen"
+                            autoFocus
+                            width={0.9}
+                            includesPlacePicker
+                            onKeyboardDidHide={() => setIsPlacesAutocompleteVisible(false)}
+                            onSelectPrediction={(data) => {
+                                setLocation(data);
+                                setIsPlacesAutocompleteVisible(false);
+                            }}
+                        />
+                    </SafeAreaView>
+                }
+
+                {isDateTimePickerVisible &&
+                    <DateTimePicker onSelectDateTime={dateTime =>{
+                        setDateTime(dateTime)
+                        console.log(dateTime)
+                        setIsDateTimePickerVisible(false)
+                    }}/>
+                }
+            </SafeAreaView>
+        </KeyboardAvoidingView>
     )
 }
 
-
-const LocationTextInputStyles = (theme, vw)=>({
-    container: {
-        position: 'relative',
-        flexDirection: 'column-reverse',
-    },
-    textInput:{
-        fontSize: 18,
-        color: theme.colors.faint,
-        paddingVertical: 0,
-        fontFamily: 'Poppins_400Regular',
-        borderRadius: 10,
-        borderWidth: 2,
-        borderColor:'#E1E1E1'
-    },
-    listView: {
-        borderRadius: 10,
-        borderWidth: 3,
-        borderColor: theme.colors.faint,
-        backgroundColor: 'white',
-        width: 0.92 * vw,
-        right: 0.27 * vw
-    },
-    row: {
-        borderRadius: 10,
-        zIndex: 100
-    },
-    description: {
-        fontFamily: 'Poppins_400Regular'
-    }
-})
-
-const createStyles = (theme, vw) => (StyleSheet.create({
+const createStyles = (theme, vw, vh, isKeyboardVisible) => (StyleSheet.create({
     screen: {
         height: "100%",
-        paddingHorizontal: 30,
-        justifyContent: "flex-end",
-        backgroundColor:"white"
+        paddingHorizontal: 0.06 * vw,
+        backgroundColor: "white"
     },
-    connectButton: { 
+    connectButton: {
         alignSelf: 'center',
         top: -3
     },
     tabContainer: {
+        marginTop: 10,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignContent: 'flex-start',
         height: 70,
-        borderBottomColor: "#e6e6e6",
-        borderBottomWidth: 2,
+        borderBottomColor: "#c4c4c471",
+        borderBottomWidth: 1,
     },
     postText: {
-        flex: 8,
         marginTop: 100,
         fontFamily: 'Poppins_500Medium',
         lineHeight: 30,
         fontSize: 20,
+        flex: isKeyboardVisible? 20 : 5
+    },
+    metaDataScrollView: { 
+        alignSelf: 'center',
+        width: 1 * vw,
+        paddingHorizontal: 0.04 * vw,
     },
     metaDataContainer: {
-        paddingBottom: 15,
-        width: 1 * vw,
-        paddingHorizontal: "8%",
+        paddingBottom: isKeyboardVisible ? 0 : 15,
+        flexDirection: isKeyboardVisible ? 'row' : 'column',
+    },
+    metaDataItem:(metaDataName) =>( {
+        paddingTop: 8,
+        alignItems: 'flex-end',
+        flexDirection: 'row',
+        marginTop: 5,
+        flex: 1,
+        width: isKeyboardVisible? "auto" : 0.9 * vw,
+    }),
+    icon: {
         alignSelf: 'center'
     },
-    metaDataItem: {
-        paddingTop: 8,
-        alignContent: 'flex-start',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        flexDirection: 'row',
-        width: 0.92 * vw, 
+    inputButton: {
+        borderRadius: 10,
+        borderWidth: 2,
+        borderColor: isKeyboardVisible ? "transparent" : "#c4c4c471",  
+        paddingTop: isKeyboardVisible ? 0 :  10,
+        paddingBottom: isKeyboardVisible ? 0 : 7,
+        paddingHorizontal: 10,
+        marginLeft: isKeyboardVisible ? 0.01 * vw : 0.05 * vw,
+        marginRight: isKeyboardVisible ? 0.1 * vw : 0 ,
+        flex: 1,
+        height: isKeyboardVisible ? 35 : 52,
         alignSelf: 'center',
-        paddingHorizontal: 0.08 * vw,
     },
-    icon: {
-        paddingLeft: 60,
-
+    inputText: {
+        fontFamily: "Poppins_400Regular",
+        fontSize: 17,
+        color: "#AFAFAF",
     },
-    input: {
-        alignItems: 'center',
-        flexDirection: 'row',
-    },
-    metadataTextTitle: {
-        fontFamily: 'Poppins_400Regular',
-        color: theme.colors.primary,
-        fontSize: 18,
-        paddingRight: 10
-    },
-    dataPickerCta:{
-        fontFamily: 'Poppins_400Regular',
-        color: theme.colors.faint,
-        fontSize:18,
-        lineHeight:30,
-
-    },
-
+    placesAutocompleteContainer: {
+        backgroundColor: 'white',
+        height: 1 * vh,
+        width: 1 * vw,
+        position: 'absolute'
+    }
 
 }))

@@ -4,7 +4,7 @@ import { StyleSheet, Text, View, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 
-import { ThemeContext } from '../App';
+import { ThemeContext } from '../styles/ThemeContext';
 import FeedSvg from '../assets/images/nav_feed_icon';
 import MapSvg from '../assets/images/nav_map_icon';
 import ProfileSvg from '../assets/images/nav_profile_icon';

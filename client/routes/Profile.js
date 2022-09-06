@@ -10,7 +10,7 @@ import AppLoading from 'expo-app-loading';
 import Button from '../components/Button'
 import DesignPatternSmall from '../assets/images/design_pattern_small'
 import DesignPatternBig from '../assets/images/design_pattern_big'
-import { ThemeContext } from '../App'
+import { ThemeContext } from '../styles/ThemeContext'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import NavBar from '../components/NavBar';
 

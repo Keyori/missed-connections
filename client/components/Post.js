@@ -5,14 +5,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import AppLoading from 'expo-app-loading';
 import Color from 'color';
 
-import { ThemeContext } from '../App';
+import { ThemeContext } from '../styles/ThemeContext';
 
 
 
 export default function Post({ textContent, date, location, campus}) {
 
     const theme = useContext(ThemeContext)
-    const background = theme.colors[campus];
+    const background = theme.colors[campus] === undefined ? "white" :theme.colors[campus] ;
     const foreground = Color(background).darken(0.6).hex()
     const styles = createStyles(theme, Dimensions.get("window").height,Dimensions.get("window").width, background, foreground)
 
@@ -46,7 +46,7 @@ export default function Post({ textContent, date, location, campus}) {
                     selectionColor="#F17F8C"
                     placeholderTextColor = {Color(background).darken(0.3).hex()}
                 />
-                <Text style={styles.shadowBox}>Send a chat</Text>
+                <Text style={styles.shadowBox}></Text>
             </View>
         </SafeAreaView>
     )
@@ -82,9 +82,9 @@ const createStyles = (theme, vh, vw, background, foreground) => (
         },
         messageStyle: textLength => ({
             fontFamily: 'Poppins_500Medium',
-            fontSize: Math.max(-0.0566 * textLength + 39, 22),
+            fontSize: Math.max(-0.0566 * textLength + 33, 22),
             color: foreground,
-            lineHeight: Math.max(-0.2078 * textLength + 84, 32) > 47 ? 47 : Math.max(-0.2078 * textLength + 84, 32),
+            lineHeight: Math.max(-0.2078 * textLength + 50, 30) ,
             paddingTop: 10,
         }),
         time: {

@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Pressable, StyleSheet, View, Text } from 'react-native'
 import { Poppins_400Regular, useFonts } from "@expo-google-fonts/poppins"
 import AppLoading from 'expo-app-loading';
-import { ThemeContext } from '../App';
+import { ThemeContext } from '../styles/ThemeContext';
 
 
 export default function RadioButtonGroup({selectedOptionValue,options, onPress, extraRadioStyles, extraRadioFillStyles}) {

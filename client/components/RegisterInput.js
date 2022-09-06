@@ -3,7 +3,7 @@ import { Image, StyleSheet, TextInput, TouchableHighlight, View } from "react-na
 import { Poppins_400Regular, useFonts } from '@expo-google-fonts/poppins';
 import AppLoading from 'expo-app-loading';
 import PasswordIcon from '../assets/images/password_icon'
-import { ThemeContext } from '../App';
+import { ThemeContext } from '../styles/ThemeContext';
 
 export default function RegisterInput({
   placeholderText,
@@ -11,7 +11,8 @@ export default function RegisterInput({
   secureTextEntry = false,
   extraStyles,
   text = "",
-  onTextChange
+  onTextChange,
+  autoFocus= false
 }) {
   const theme = useContext(ThemeContext)
   const styles = createStyles(theme)
@@ -37,6 +38,7 @@ export default function RegisterInput({
           underlineColorAndroid="transparent"
           textAlignVertical="center"
           text={text}
+          autoFocus={autoFocus}
           onChangeText={(text) => {
             onTextChange(text)}
           }
@@ -68,9 +70,9 @@ const createStyles  = (theme)=>(  StyleSheet.create({
   },
   input: {
     flex: 1,
-    paddingLeft: 25,
+    paddingLeft: 20,
     fontFamily: 'Poppins_400Regular',
-    fontSize: 20,
+    fontSize: 18,
   },
   passwordIconTouchable: {
     marginRight: 20,

@@ -1,6 +1,6 @@
 import * as React from "react"
 import Svg, { Path, Defs, LinearGradient, Stop } from "react-native-svg"
-import { ThemeContext } from "../../App"
+import { ThemeContext } from "../../styles/ThemeContext"
 
 const DesignPatternSmall = (props) => { 
   const theme = React.useContext(ThemeContext)

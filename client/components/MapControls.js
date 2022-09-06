@@ -1,17 +1,17 @@
-import React, { useContext } from 'react';
-import { StyleSheet, TextInput, View, FlatList } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { StyleSheet, View, FlatList, Dimensions } from 'react-native';
 
 
 import SearchSvg from '../assets/images/search_icon'
 import Button from '../components/Button'
 import {SafeAreaView} from 'react-native-safe-area-context'
 
-import { ThemeContext } from '../App';
-import LocationTextInput from './LocationTextInput';
+import { ThemeContext } from '../styles/ThemeContext';
+import PlacesAutocomplete from './PlacesAutocomplete';
 
 export default function MapControls({animateToRegion}) {
     const theme = useContext(ThemeContext)
-    const styles = createStyles(theme)
+    const styles = createStyles(theme,  Dimensions.get('window').width)
    
     let campusList = [
         {
@@ -65,17 +65,18 @@ export default function MapControls({animateToRegion}) {
                 shadowOffSet={3.5} />
         </View>
     );
+
     return (
         <SafeAreaView style={styles.controlsContainer}>
             <View style={styles.mapControlsContainer}>
 
                 <View style={styles.searchContainer}>
-                    <SearchSvg height={19} width={19} style={{ position: 'absolute', left: '7%',top: 20, zIndex: 2 }} />
-                    <LocationTextInput extraStyles = {styles.textSearch} animateToRegion = {(region)=> animateToRegion({
-                latitude: region.latitude, 
-                longitude:  region.longitude,
-                latitudeDelta: 0.002, longitudeDelta: 0.002
-                    })}/>
+                    <PlacesAutocomplete 
+                        onSelectPrediction = {(region)=> animateToRegion({
+                            latitude: region.latitude, 
+                            longitude:  region.longitude,
+                            latitudeDelta: 0.002, longitudeDelta: 0.002
+                        })}/>
                 </View>
 
                 <FlatList
@@ -92,7 +93,7 @@ export default function MapControls({animateToRegion}) {
         </SafeAreaView>
     )
 }
-const createStyles = (theme) => (StyleSheet.create({
+const createStyles = (theme, vw) => (StyleSheet.create({
     controlsContainer: {
         width: '100%',
         justifyContent: 'space-between',
@@ -104,13 +105,7 @@ const createStyles = (theme) => (StyleSheet.create({
         top:0
     },
     mapControlsContainer: {
-        width: '100%',
-    },
-    searchContainer: {
-        marginTop: 20,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center'
+        width: 1 * vw,
     },
     textSearch: {
         borderColor: theme.colors.faint,

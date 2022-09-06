@@ -7,7 +7,7 @@ import axios from 'axios'
 
 import Button from '../components/Button'
 import RegisterInput from '../components/RegisterInput'
-import { ThemeContext } from '../App'
+import { ThemeContext } from '../styles/ThemeContext'
 
 import * as SecureStore from 'expo-secure-store';
 

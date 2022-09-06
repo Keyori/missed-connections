@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 
 import Button from '../components/Button'
 import RegisterInput from '../components/RegisterInput'
-import { ThemeContext } from '../App'
+import { ThemeContext } from '../styles/ThemeContext'
 import { useState } from 'react/cjs/react.development'
 
 

@@ -1,8 +1,8 @@
-import { NavigationContainer, ThemeProvider } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import { createContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import * as SecureStore from 'expo-secure-store';
 
 
@@ -13,13 +13,15 @@ import VerifyEmail from './routes/VerifyEmail'
 import Feed from './routes/Feed'
 import Profile from './routes/Profile'
 import Boarding from './routes/Boarding'
-import { theme, darkTheme } from './Theme'
+import { theme, darkTheme } from './styles/Theme'
+import { ThemeContext } from './styles/ThemeContext';
 import CreatePost from './routes/CreatePost';
 import RegisterFinal from './routes/RegisterFinal';
 import DirectMessaging from './routes/DirectMessaging';
+import PlacePickerMap from './routes/PlacePickerMap'
+
 
 const Stack = createNativeStackNavigator();
-export const ThemeContext = createContext({})
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(false)
@@ -52,7 +54,7 @@ export default function App() {
           <Stack.Screen name="verifyEmail" component={VerifyEmail} />
           <Stack.Screen name="feed" component={Feed} />
           <Stack.Screen name="profile" component={DirectMessaging} />
-          
+          <Stack.Screen name = "placePickerMap" component={PlacePickerMap} />
         </Stack.Navigator>
       </NavigationContainer>
     </ThemeContext.Provider>

@@ -5,7 +5,7 @@ import AppLoading from 'expo-app-loading'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 
-import { ThemeContext } from '../App'
+import { ThemeContext } from '../styles/ThemeContext'
 
 
 export default function DirectMessaging() {
