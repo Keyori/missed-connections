@@ -1,9 +1,8 @@
 # Missed Connection App 
 
-
-
-
 ## MySQL Database
+
+
 
 ### Posts
 | pid | uid | text | postedAt | location | geoLocation | campus |

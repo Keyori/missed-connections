@@ -1,3 +1,5 @@
+-- Start server: docker run --name postgres-db -e POSTGRES_PASSWORD=docker -p 5432:5432 -d postgres
+
 -- DB login info with docker:
 -- Username: postgres
 -- Password: docker
@@ -18,7 +20,8 @@ CREATE TABLE IF NOT EXISTS accounts (
     gender              GENDER NOT NULL,
     graduation_year     INTEGER NOT NULL,
 
-    UNIQUE (email)
+    UNIQUE (email),
+    UNIQUE (username)
 );
 
 CREATE TABLE IF NOT EXISTS posts (
@@ -40,11 +43,18 @@ CREATE TABLE IF NOT EXISTS posts (
 CREATE TABLE IF NOT EXISTS comments (
     id          SERIAL PRIMARY KEY,
     post_id     UUID NOT NULL,
-    creator     TEXT NOT NULL,
     posted_at   TIMESTAMP NOT NULL,
     message     TEXT NOT NULL,
     likes       INT8 NOT NULL,
 
-    CONSTRAINT genuine_post		FOREIGN KEY (post_id) REFERENCES posts(id),
+    CONSTRAINT genuine_post		FOREIGN KEY (post_id) REFERENCES posts(id)
+);
+
+CREATE TABLE IF NOT EXISTS message (
+    id              SERIAL PRIMARY KEY,
+    creator         TEXT NOT NULL,
+    posted_at       TIMESTAMP NOT NULL,
+    message         TEXT NOT NULL,
+
     CONSTRAINT genuine_user		FOREIGN KEY (creator) REFERENCES accounts(username)
 )
