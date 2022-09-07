@@ -21,13 +21,13 @@ export default function Map({ navigation }) {
   const styles = createStyles(theme, Dimensions.get('window').width, Dimensions.get('window').height)
   const [posts, setPosts] = useState([]) 
   
-  useEffect(async ()=>{
-    try{
-      const {data} = await axios.get("http://192.168.1.237:3000/api/1.0/posts/map") ;
-     setPosts(Object.entries(data) );
-    }catch(err){
-        console.log(err)
-    }
+  useEffect(()=>{
+    async function fetchData(){
+      
+        const {data} = await axios.get("https://vast-spoons-call-108-5-138-50.loca.lt/api/1.0/posts/map") ;
+        setPosts(Object.entries(data) );
+      }
+    fetchData();
   },[])
 
 

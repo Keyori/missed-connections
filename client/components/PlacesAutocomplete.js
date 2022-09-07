@@ -64,7 +64,7 @@ export default function PlacesAutocomplete({ placeholderText="Search Location", 
         //https://maps.googleapis.com/maps/api/place/autocomplete/json
         let result;
         try {
-            const { data } = await axios.get("http://192.168.1.237:3000", {
+            const { data } = await axios.get("https://vast-spoons-call-108-5-138-50.loca.lt", {
                 params: {
                     key: PLACES_API_KEY,
                     input: dropdown.query.trim(),
