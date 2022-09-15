@@ -18,11 +18,21 @@ export default function Register({ navigation }) {
         'ITC Giovanni': require('../assets/fonts/itc_giovanni_std_book.otf')
     })
 
-    let [fullName, setfullName] = useState("")
-    let [username, setUsername] = useState("")
-    let [password, setPassword] = useState("")
 
-    let [error, setError] = useState("")
+    const abstractFormInputs = {
+        "fullName": "",
+        "email": "",
+        "username": "",
+        "password":""
+    }
+    
+    const [formData, setFormData]  = useState(abstractFormInputs)
+    const changeFormData = (targetInput, newInputValue) => {
+        setFormData(oldFormData => ({...oldFormData, [targetInput]: newInputValue }))
+    }
+    
+    const [formError, setFormError] = useState(abstractFormInputs)
+
 
     if (!fontsLoaded) {
         return <AppLoading />
@@ -35,27 +45,30 @@ export default function Register({ navigation }) {
 
                     <RegisterInput
                         placeholderText="Full Name"
-                        keyboardType="default"
                         extraStyles={styles.registerInput}
-                        text={fullName}
-                        onTextChange={setfullName}
+                        text={formData.fullName}
+                        onTextChange={(newVal) => changeFormData('fullName', newVal)}
                     />
                     <RegisterInput
-                        placeholderText="Rutgers NetID"
-                        keyboardType="default"
+                        placeholderText="Email"
                         extraStyles={styles.registerInput}
-                        text={username}
-                        onTextChange={setUsername}
+                        text={formData.email}
+                        onTextChange={(newVal) => changeFormData('email', newVal)}
+                    />
+                    <RegisterInput
+                        placeholderText="Username"
+                        extraStyles={styles.registerInput}
+                        text={formData.username}
+                        onTextChange={(newVal) => changeFormData('username', newVal)}
                     />
                     <RegisterInput
                         placeholderText="Password"
-                        keyboardType="default"
                         secureTextEntry={true}
                         extraStyles={styles.registerInput}
-                        text={password}
-                        onTextChange={setPassword}
+                        text={formData.password}
+                        onTextChange={(newVal) => changeFormData('password', newVal)}
                     />
-                    {error !== "" ? <Text style={styles.errorText}>{error}</Text> : null }
+                    <Text>{formError.general}</Text>
 
                 </View>
                 <View style={styles.submit}>
@@ -63,14 +76,13 @@ export default function Register({ navigation }) {
                         text="NEXT ➔"
                         priority={1}
                         onPress={() => {
-                            if((fullName.split(" ").length == 2) && username !== "" && password !== "") {
+                            //check if any for input is empty 
+                            if(! Object.values(formData).filter(input => !input.trim()).length > 0) {
                                 navigation.navigate('registerFinal', {
-                                    fullName: fullName,
-                                    username: username,
-                                    password: password
+                                    formData: formData
                                 })
                             } else {
-                            setError("Please enter all your information.")
+                                setFormError(oldFormError => ({...oldFormError, general: "please input all required data"}))
                             }
                         }}
                         extraStyles={{ paddingVertical: 10 }}

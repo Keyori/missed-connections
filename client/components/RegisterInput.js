@@ -7,7 +7,7 @@ import { ThemeContext } from '../styles/ThemeContext';
 
 export default function RegisterInput({
   placeholderText,
-  keyboardType,
+  keyboardType = "default",
   secureTextEntry = false,
   extraStyles,
   text = "",

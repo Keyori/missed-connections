@@ -14,17 +14,16 @@ export default function RegisterFinal({ route, navigation }) {
     const theme = useContext(ThemeContext)
     const styles = createStyles(theme)
 
-    const { fullName, username, password } = route.params
 
+    const [formData, setFormData] = useState({...route.params.formData, })
+    const [gender, setGender] = useState("unknown");
+    const [graduationYear, setGraduationYear] = useState("unknown");
+    let [error, setError] = useState("")
+    
+    
     const generateValueFromLabel = option => ({ ...option, value: option.value === undefined ? option.label.toLowerCase() : option.value })
-
     const genderOptions = [{ label: 'Male' }, { label: 'Female' }, { label: 'Other' }].map(generateValueFromLabel)
     const classLevelOptions = [{ label: '2022' }, { label: '2023' }, { label: '2024' }, { label: '2025' }].map(generateValueFromLabel)
-
-    const [gender, setGender] = useState("unknown");
-    const [classLevel, setClassLevel] = useState("unknown");
-
-    let [error, setError] = useState("")
 
     return (
         <SafeAreaView style={styles.screen}>
@@ -39,8 +38,8 @@ export default function RegisterFinal({ route, navigation }) {
                 <Text style={styles.h3}>When do you graduate?</Text>
                 <RadioButtonGroup
                     options={classLevelOptions}
-                    selectedOptionValue={classLevel}
-                    onPress={({ value }) => setClassLevel(value)}
+                    selectedOptionValue={graduationYear}
+                    onPress={({ value }) => setGraduationYear(value)}
                 />
                 {error !== "" ? <Text style={styles.errorText}>{error}</Text> : null}
             </View>
@@ -51,13 +50,13 @@ export default function RegisterFinal({ route, navigation }) {
                     text="VERIFY YOUR ACCOUNT"
                     priority={1}
                     onPress={async () => {
-                        if (gender != "unknown" && classLevel != "unknown") {
+                        if (gender != "unknown" && graduationYear != "unknown") {
                             try {
                                 const registerData = await axios.post('http://localhost:3000/api/register', {
                                     username: username,
                                     password: password,
                                     fullName: fullName,
-                                    gradYear: classLevel,
+                                    gradYear: graduationYear,
                                     gender: gender
                                 })
                                 console.log(JSON.stringify(registerData))
