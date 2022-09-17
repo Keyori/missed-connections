@@ -20,6 +20,13 @@ import RegisterFinal from './routes/RegisterFinal';
 import DirectMessaging from './routes/DirectMessaging';
 import PlacePickerMap from './routes/PlacePickerMap'
 
+/**
+ * configure axios
+ */
+import axios from 'axios';
+axios.defaults.baseURL = 'http://1f4f-128-6-37-185.ngrok.io/';
+
+
 
 const Stack = createNativeStackNavigator();
 

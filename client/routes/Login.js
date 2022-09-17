@@ -20,8 +20,22 @@ export default function Login({ navigation }) {
         'ITC Giovanni': require('../assets/fonts/itc_giovanni_std_book.otf')
     })
 
-    const [password, setPassword] = useState("")
-    const [id, setId] = useState("")
+    
+    const [formData, setFormData] = useState({username: "", password: ""})
+    const changeFormData = (targetInput, newInputValue) => {
+        setFormData(oldFormData => ({...oldFormData, [targetInput]: newInputValue }))
+    }
+    const handleFormSubmission = async () => {
+        try{
+            const resLogin = await axios.post("/login", formData)
+            const sessionId = resLogin.data
+
+            SecureStore.setItemAsync("sessionId", sessionId);
+            navigation.navigate('map')
+        }catch(err){
+            console.log(err)
+        }
+    }
 
 
     
@@ -32,40 +46,24 @@ export default function Login({ navigation }) {
                 <Text style={styles.h1}>Welcome Back</Text>
                 {/* Message others, find that one special encounter. */}
                 <RegisterInput
-                    placeholderText="Rutgers NetID"
-                    keyboardType="default"
+                    placeholderText="Username"
                     extraStyles={styles.registerInput}
-                    text={id}
-                    onTextChange={setId}
+                    text={formData.username}
+                    onTextChange={(newVal)=> changeFormData('username', newVal)}
                 />
                 <RegisterInput
                     placeholderText="Password"
-                    keyboardType="default"
                     secureTextEntry={true}
                     extraStyles={styles.registerInput}
-                    text={password}
-                    onTextChange={setPassword}
+                    text={formData.password}
+                    onTextChange={(newVal)=> changeFormData('password', newVal)}
                 />
             </View>
             <View style={styles.submit}>
                 <Button
                     text="NEXT ➔"
                     priority={1}
-                    onPress={async () => {
-
-                        try{
-                            const {data: {sessionId: sessionId}} = await axios.post("http://localhost:3000/api/login", {
-                                username: id,
-                                password: password,
-                            })
-                            
-                            SecureStore.setItemAsync("sessionId", sessionId);
-                            navigation.navigate('map')
-                        }catch(err){
-                            console.log(err)
-                        }
-
-                    }}
+                    onPress={handleFormSubmission}
                     extraStyles={{ paddingVertical: 10 }}
                 />
             </View>

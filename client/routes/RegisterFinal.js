@@ -15,33 +15,67 @@ export default function RegisterFinal({ route, navigation }) {
     const styles = createStyles(theme)
 
 
-    const [formData, setFormData] = useState({...route.params.formData, })
-    const [gender, setGender] = useState("unknown");
-    const [graduationYear, setGraduationYear] = useState("unknown");
-    let [error, setError] = useState("")
-    
-    
-    const generateValueFromLabel = option => ({ ...option, value: option.value === undefined ? option.label.toLowerCase() : option.value })
-    const genderOptions = [{ label: 'Male' }, { label: 'Female' }, { label: 'Other' }].map(generateValueFromLabel)
-    const classLevelOptions = [{ label: '2022' }, { label: '2023' }, { label: '2024' }, { label: '2025' }].map(generateValueFromLabel)
+    /**
+     * route.params.formData: 
+     *  "fullName": "",
+        "email": "",
+        "username": "",
+        "password":""
+     */
+    const [formData, setFormData] = useState({...route.params.formData, graduationYear: undefined, gender:undefined })
+    const changeFormData = (targetInput, newInputValue) => {
+        setFormData(oldFormData => ({...oldFormData, [targetInput]: newInputValue }))
+    }
 
+    const [formError, setFormError] = useState({})
+    
+    const handleFormSubmission = async () => {    
+        try{
+            if(formData.gender === undefined || formData.graduationYear === undefined){
+                setFormError(oldFormData => ({...oldFormData, generic: "please enter all info"}))
+                console.log("error")
+                return;
+            }
+
+            const resCreateAccount = await axios.post('/create-account', {
+                ...formData,
+                firstName: formData.fullName.split(" ")[0],
+                lastName: "",
+            })
+            const resLogin = await axios.post("/login", {
+                    username: formData.username,
+                    password: formData.password,
+            })
+            
+            const sessionId =  resLogin.data
+            SecureStore.setItemAsync("sessionId", sessionId);
+            navigation.navigate('map')
+        
+        }catch(err){
+            console.log(err);
+        }
+    }
+    
+    const genderOptions = [{ label: 'Male', value: 'Male' }, { label: 'Female', value: 'Female' }, { label: 'Other', value: 'Other' }]
+    const classLevelOptions = [{ label: '2022', value: 2022 }, { label: '2023', value: 2023 }, { label: '2024', value: 2024 }, { label: '2025', value: 2025 }]
+    
     return (
         <SafeAreaView style={styles.screen}>
             <View style={styles.questions}>
                 <Text style={styles.h3}>How do you describe yourself?</Text>
                 <RadioButtonGroup
                     options={genderOptions}
-                    selectedOptionValue={gender}
-                    onPress={({ value }) => setGender(value)}
+                    selectedOptionValue={formData.gender}
+                    onPress={({ value: newVal }) => changeFormData("gender",newVal)}
                 />
 
                 <Text style={styles.h3}>When do you graduate?</Text>
                 <RadioButtonGroup
                     options={classLevelOptions}
-                    selectedOptionValue={graduationYear}
-                    onPress={({ value }) => setGraduationYear(value)}
+                    selectedOptionValue={formData.graduationYear}
+                    onPress={({ value: newVal }) => changeFormData("graduationYear",newVal)}
                 />
-                {error !== "" ? <Text style={styles.errorText}>{error}</Text> : null}
+                {formError.generic && <Text style={styles.errorText}>please enter all the info</Text>}
             </View>
 
 
@@ -49,31 +83,7 @@ export default function RegisterFinal({ route, navigation }) {
                 <Button
                     text="VERIFY YOUR ACCOUNT"
                     priority={1}
-                    onPress={async () => {
-                        if (gender != "unknown" && graduationYear != "unknown") {
-                            try {
-                                const registerData = await axios.post('http://localhost:3000/api/register', {
-                                    username: username,
-                                    password: password,
-                                    fullName: fullName,
-                                    gradYear: graduationYear,
-                                    gender: gender
-                                })
-                                console.log(JSON.stringify(registerData))
-                                const {data: {sessionId: sessionId}} =await axios.post("http://localhost:3000/api/login", {
-                                    username: username,
-                                    password: password,
-                                })
-
-                                console.log(sessionId)
-                                SecureStore.setItemAsync("sessionId", sessionId);
-                                navigation.navigate('map')
-
-                                }catch (err) { console.trace(err); setError("An error has occurred.") }
-                            } else {
-                            setError("Please enter fill in all your information.")
-                        }
-                    }}
+                    onPress={handleFormSubmission}
                     extraStyles={{ paddingVertical: 10 }}
                 />
             </View>
@@ -107,6 +117,9 @@ const createStyles = theme => (StyleSheet.create({
     },
     errorText: {
         color: theme.colors.primary,
-        fontSize: 21,
-    }
+        fontSize: 14,
+        position: 'absolute',
+        bottom: -20,
+        fontFamily: 'Poppins_400Regular',
+    },
 }))
