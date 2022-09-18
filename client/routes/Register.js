@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useRef } from 'react'
-import { useFonts, Poppins_700Bold } from '@expo-google-fonts/poppins'
+import { useFonts, Poppins_700Bold,Poppins_400Regular } from '@expo-google-fonts/poppins'
 import AppLoading from 'expo-app-loading'
 import { View, Text, StyleSheet, Animated } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { object, string, number, date, InferType } from 'yup';
 
 import Button from '../components/Button'
 import RegisterInput from '../components/RegisterInput'
@@ -15,14 +16,44 @@ export default function Register({ navigation }) {
     const styles = createStyles(theme)
     let [fontsLoaded] = useFonts({
         Poppins_700Bold,
+        Poppins_400Regular,
         'ITC Giovanni': require('../assets/fonts/itc_giovanni_std_book.otf')
     })
 
-    let [fullName, setfullName] = useState("")
-    let [username, setUsername] = useState("")
-    let [password, setPassword] = useState("")
 
-    let [error, setError] = useState("")
+    const formSchema = object().shape({
+        "fullName": string().trim().required(),
+        "email": string().trim().required().email(),
+        "username": string().trim().required(),
+        "password": string().trim().required()
+            .matches(/.{7}/, 'your password must have at least 8 characters ')
+            .matches(/[&!$@*]/, 'your password must contain special characters &!$@*')
+            .matches(/[1-9]/, 'your password must contain numbers')
+            .matches(/[A-Z]/, 'your password must contain capital letters')
+    })
+
+    const [formData, setFormData] = useState({})
+    const [formError, setFormError] = useState({})
+    const changeFormData = async (targetInput, newInputValue) => {
+        setFormData(oldFormData => ({ ...oldFormData, [targetInput]: newInputValue }))
+
+    }
+
+    const [isFormSubmissionLoading, setIsFormSubmissionLoading] = useState(false);
+    const handleFormSubmission = async () => {
+
+        try{
+            
+            const validFormData = await formSchema.validate(formData, {abortEarly: false})
+            navigation.navigate('registerFinal', {
+                formData: validFormData
+            })
+        }catch(err){
+            //convert an array of validation error into an obj with [key=path of the error] : message]
+            setFormError(err.inner.reduce((a,validationError) => ({...a, [validationError.path] : validationError.message}), {}))
+        }
+    }
+
 
     if (!fontsLoaded) {
         return <AppLoading />
@@ -33,46 +64,56 @@ export default function Register({ navigation }) {
                     <Text style={styles.h1}>Join the Club</Text>
                     <Text style={styles.h2}>Message others, find that one special encounter.</Text>
 
-                    <RegisterInput
-                        placeholderText="Full Name"
-                        keyboardType="default"
-                        extraStyles={styles.registerInput}
-                        text={fullName}
-                        onTextChange={setfullName}
-                    />
-                    <RegisterInput
-                        placeholderText="Rutgers NetID"
-                        keyboardType="default"
-                        extraStyles={styles.registerInput}
-                        text={username}
-                        onTextChange={setUsername}
-                    />
-                    <RegisterInput
-                        placeholderText="Password"
-                        keyboardType="default"
-                        secureTextEntry={true}
-                        extraStyles={styles.registerInput}
-                        text={password}
-                        onTextChange={setPassword}
-                    />
-                    {error !== "" ? <Text style={styles.errorText}>{error}</Text> : null }
+                    <View style={styles.inputContainer}>
+                        <RegisterInput
+                            placeholderText="Full Name"
+                            extraStyles={[styles.registerInput, formError["fullName"] ? styles.registerInputError :{}]}
+                            text={formData.fullName}
+                            onTextChange={(newVal) => changeFormData('fullName', newVal)}
+                        />
+                        {formError["fullName"] && <Text style={styles.errorText}>{formError["fullName"]}</Text>}
+                    </View>
+
+                    <View style={styles.inputContainer}>
+                        <RegisterInput
+                            placeholderText="Email"
+                            extraStyles={[styles.registerInput, formError["email"] ? styles.registerInputError :{}]}
+                            text={formData.email}
+                            onTextChange={(newVal) => changeFormData('email', newVal)}
+                        />
+                        {formError["email"] && <Text style={styles.errorText}>{formError["email"]}</Text>}
+                    </View>
+
+                    <View style={styles.inputContainer}>
+                        <RegisterInput
+                            placeholderText="Username"
+                            extraStyles={[styles.registerInput, formError["username"] ? styles.registerInputError :{}]}
+                            text={formData.username}
+                            onTextChange={(newVal) => changeFormData('username', newVal)}
+                        />
+                        {formError["username"] && <Text style={styles.errorText}>{formError["username"]}</Text>}
+                    </View>
+                    
+                    
+                    <View style={styles.inputContainer}>
+                        <RegisterInput
+                            placeholderText="Password"
+                            secureTextEntry={true}
+                            extraStyles={[styles.registerInput, formError["password"] ? styles.registerInputError :{}]}
+                            text={formData.password}
+                            onTextChange={(newVal) => changeFormData('password', newVal)}
+                        />
+                        {formError["password"] && <Text style={styles.errorText}>{formError["password"]}</Text>}
+                    </View>
+                    
+                    <Text>{formError.general}</Text>
 
                 </View>
                 <View style={styles.submit}>
                     <Button
                         text="NEXT ➔"
                         priority={1}
-                        onPress={() => {
-                            if((fullName.split(" ").length == 2) && username !== "" && password !== "") {
-                                navigation.navigate('registerFinal', {
-                                    fullName: fullName,
-                                    username: username,
-                                    password: password
-                                })
-                            } else {
-                            setError("Please enter all your information.")
-                            }
-                        }}
+                        onPress={handleFormSubmission}
                         extraStyles={{ paddingVertical: 10 }}
                     />
                 </View>
@@ -97,6 +138,9 @@ const createStyles = (theme) => (StyleSheet.create({
     registerInput: {
         marginBottom: 20,
     },
+    registerInputError: {
+        borderColor:  theme.colors.primaryExtraLight, 
+    },
     submit: {
         flex: 7,
         justifyContent: "center",
@@ -118,6 +162,10 @@ const createStyles = (theme) => (StyleSheet.create({
     },
     errorText: {
         color: theme.colors.primary,
-        fontSize: 21,
+        fontSize: 14,
+        position: 'absolute',
+        bottom: 0,
+        right:0,
+        fontFamily: 'Poppins_400Regular',
     }
 }))

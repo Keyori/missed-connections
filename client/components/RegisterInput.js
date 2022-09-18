@@ -7,7 +7,7 @@ import { ThemeContext } from '../styles/ThemeContext';
 
 export default function RegisterInput({
   placeholderText,
-  keyboardType,
+  keyboardType = "default",
   secureTextEntry = false,
   extraStyles,
   text = "",
@@ -30,6 +30,7 @@ export default function RegisterInput({
       <View style={[styles.container, extraStyles]}>
         <TextInput
           style={styles.input}
+          autoCapitalize="none"
           placeholder={placeholderText}
           placeholderTextColor={"#D8D6D3"}
           keyboardType={keyboardType}

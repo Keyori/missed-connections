@@ -20,6 +20,13 @@ import RegisterFinal from './routes/RegisterFinal';
 import DirectMessaging from './routes/DirectMessaging';
 import PlacePickerMap from './routes/PlacePickerMap'
 
+/**
+ * configure axios
+ */
+import axios from 'axios';
+axios.defaults.baseURL = 'http://1310-128-6-37-112.ngrok.io';
+
+
 
 const Stack = createNativeStackNavigator();
 
@@ -44,7 +51,7 @@ export default function App() {
   return (
     <ThemeContext.Provider value={darkMode ? darkTheme : theme}>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName={loggedIn? "boarding": "map"} screenOptions={{ headerShown: false, cardStyleInterpolator: ({ current }) => ({ cardStyle: { opacity: current.progress } }) }}>
+        <Stack.Navigator initialRouteName={!loggedIn? "boarding": "map"} screenOptions={{ headerShown: false, cardStyleInterpolator: ({ current }) => ({ cardStyle: { opacity: current.progress } }) }}>
           <Stack.Screen name="boarding" component={Boarding} />
           <Stack.Screen name="createPost" component={CreatePost} />
           <Stack.Screen name="map" component={Map} />
