@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS posts (
 CREATE TABLE IF NOT EXISTS comments (
     id          SERIAL PRIMARY KEY,
     post_id     UUID NOT NULL,
-    posted_at   TIMESTAMP NOT NULL,
+    posted_at   TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
     message     TEXT NOT NULL,
     likes       INT8 NOT NULL,
 

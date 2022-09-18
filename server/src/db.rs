@@ -164,3 +164,17 @@ pub async fn set_session_id(
 
     Ok(())
 }
+
+pub async fn add_comment(
+    transaction: &mut Transaction<'_, Postgres>,
+    post_id: Uuid,
+    message: &str,
+) -> Result<(), DbError> {
+    sqlx::query!("INSERT INTO comments ( post_id, posted_at, message, likes ) VALUES ( $1, default, $2, 0 )",
+        post_id,
+        message)
+        .execute(transaction)
+        .await?;
+
+    Ok(())
+}
