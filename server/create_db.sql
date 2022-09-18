@@ -29,12 +29,12 @@ CREATE TABLE IF NOT EXISTS posts (
     creator         TEXT NOT NULL,
     message         TEXT NOT NULL,
     posted_at       TIMESTAMP NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
-    longitude       FLOAT4 NOT NULL,
-    latitude        FLOAT4 NOT NULL,
-    location        TEXT NOT NULL,
-    campus          TEXT NOT NULL,
-    likes           INT8 NOT NULL,
-    dislikes        INT8 NOT NULL,
+    longitude       FLOAT4,
+    latitude        FLOAT4,
+    location        TEXT ,
+    campus          TEXT ,
+    likes           INT8 NOT NULL DEFAULT 1,
+    dislikes        INT8 NOT NULL DEFAULT 0,
 
 -- disabled currently so I can test posts
     CONSTRAINT genuine_user		FOREIGN KEY (creator) REFERENCES accounts(username)

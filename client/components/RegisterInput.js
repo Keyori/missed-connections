@@ -30,6 +30,7 @@ export default function RegisterInput({
       <View style={[styles.container, extraStyles]}>
         <TextInput
           style={styles.input}
+          autoCapitalize="none"
           placeholder={placeholderText}
           placeholderTextColor={"#D8D6D3"}
           keyboardType={keyboardType}

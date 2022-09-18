@@ -39,6 +39,7 @@ export default function Register({ navigation }) {
 
     }
 
+    const [isFormSubmissionLoading, setIsFormSubmissionLoading] = useState(false);
     const handleFormSubmission = async () => {
 
         try{
@@ -47,7 +48,6 @@ export default function Register({ navigation }) {
             navigation.navigate('registerFinal', {
                 formData: validFormData
             })
-
         }catch(err){
             //convert an array of validation error into an obj with [key=path of the error] : message]
             setFormError(err.inner.reduce((a,validationError) => ({...a, [validationError.path] : validationError.message}), {}))

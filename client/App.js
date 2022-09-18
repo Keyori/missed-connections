@@ -24,7 +24,7 @@ import PlacePickerMap from './routes/PlacePickerMap'
  * configure axios
  */
 import axios from 'axios';
-axios.defaults.baseURL = 'http://1f4f-128-6-37-185.ngrok.io/';
+axios.defaults.baseURL = 'http://1310-128-6-37-112.ngrok.io';
 
 
 

@@ -1,9 +1,10 @@
 import React, { useContext, useState, useRef } from 'react'
 import { useFonts, Poppins_700Bold } from '@expo-google-fonts/poppins'
 import AppLoading from 'expo-app-loading'
-import { View, Text, StyleSheet, Dimensions } from 'react-native'
+import { View, Text, StyleSheet, Dimensions, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import axios from 'axios'
+import { object, string, number, date, InferType } from 'yup';
 
 import Button from '../components/Button'
 import RegisterInput from '../components/RegisterInput'
@@ -21,22 +22,42 @@ export default function Login({ navigation }) {
     })
 
     
-    const [formData, setFormData] = useState({username: "", password: ""})
+    const formSchema = object().shape({
+        "username": string().trim().required(),
+        "password": string().trim().required()
+    })
+    const [formData, setFormData] = useState({})
+    const [formError, setFormError] = useState({})
     const changeFormData = (targetInput, newInputValue) => {
         setFormData(oldFormData => ({...oldFormData, [targetInput]: newInputValue }))
     }
+
+    const [isFormSubmissionLoading, setIsFormSubmissionLoading] = useState(false);
     const handleFormSubmission = async () => {
+        try {
+            const validFormData = await formSchema.validate(formData, {abortEarly: false})
+        }
+        catch(err){
+            return setFormError(err.inner.reduce((a,validationError) => ({...a, [validationError.path] : validationError.message}), {}))       
+        }
         try{
+            setIsFormSubmissionLoading(true);
             const resLogin = await axios.post("/login", formData)
             const sessionId = resLogin.data
-
             SecureStore.setItemAsync("sessionId", sessionId);
+            //TODO replace with actual header name
+            axios.defaults.headers.common = {
+                "AUTH TOKEN": sessionId,
+            }
             navigation.navigate('map')
+            
         }catch(err){
-            console.log(err)
+            setIsFormSubmissionLoading(false);
+            return setFormError({generic: err.response.data.trim() ? err.response.data : 'an unexpected server error occured'})
         }
-    }
 
+
+    }
 
     
     if (!fontsLoaded) return <AppLoading />
@@ -45,23 +66,34 @@ export default function Login({ navigation }) {
             <View style={styles.titleAndInputs}>
                 <Text style={styles.h1}>Welcome Back</Text>
                 {/* Message others, find that one special encounter. */}
-                <RegisterInput
-                    placeholderText="Username"
-                    extraStyles={styles.registerInput}
-                    text={formData.username}
-                    onTextChange={(newVal)=> changeFormData('username', newVal)}
-                />
-                <RegisterInput
-                    placeholderText="Password"
-                    secureTextEntry={true}
-                    extraStyles={styles.registerInput}
-                    text={formData.password}
-                    onTextChange={(newVal)=> changeFormData('password', newVal)}
-                />
+                
+                <View style={styles.inputContainer}>
+                    <RegisterInput
+                        placeholderText="Username"
+                        extraStyles={[styles.registerInput, formError["username"] ? styles.registerInputError :{}]}
+                        text={formData.username}
+                        onTextChange={(newVal) => changeFormData('username', newVal)}
+                    />
+                    {formError["username"] && <Text style={styles.errorText}>{formError["username"]}</Text>}
+                </View>
+
+                <View style={styles.inputContainer}>
+                    <RegisterInput
+                        placeholderText="Password"
+                        extraStyles={[styles.registerInput, formError["password"] ? styles.registerInputError :{}]}
+                        text={formData.password}
+                        secureTextEntry
+                        onTextChange={(newVal) => changeFormData('password', newVal)}
+                    />
+                    {formError["password"] && <Text style={styles.errorText}>{formError["password"]}</Text>}
+                </View>
+                
+                {formError.generic && <Text style={styles.errorTextGeneric}>{formError.generic}</Text>}
+
             </View>
             <View style={styles.submit}>
                 <Button
-                    text="NEXT ➔"
+                    text={isFormSubmissionLoading ? 'loading...': 'NEXT ➔'}
                     priority={1}
                     onPress={handleFormSubmission}
                     extraStyles={{ paddingVertical: 10 }}
@@ -86,6 +118,22 @@ const createStyles = (theme, vh) => (StyleSheet.create({
     },
     registerInput: {
         marginBottom: 20,
+    },
+        registerInputError: {
+        borderColor:  theme.colors.primaryExtraLight, 
+    },
+    errorText: {
+        color: theme.colors.primary,
+        fontSize: 14,
+        position: 'absolute',
+        bottom: -3,
+        right:0,
+        fontFamily: 'Poppins_400Regular',
+    },
+    errorTextGeneric:{
+        fontFamily: 'Poppins_400Regular',
+        color: theme.colors.primary,
+        fontSize: 14,
     },
     submit: {
         justifyContent: "center",

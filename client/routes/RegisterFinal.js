@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { ThemeContext } from '../styles/ThemeContext'
 import axios from 'axios'
+import { object, string, number, date, InferType } from 'yup';
 
 
 import Button from '../components/Button'
@@ -15,28 +16,28 @@ export default function RegisterFinal({ route, navigation }) {
     const styles = createStyles(theme)
 
 
-    /**
-     * route.params.formData: 
-     *  "fullName": "",
-        "email": "",
-        "username": "",
-        "password":""
-     */
+
+    const formSchema = object().shape({
+        "gender": string().trim().required(),
+        "graduationYear": number().required()
+    })
     const [formData, setFormData] = useState({...route.params.formData, graduationYear: undefined, gender:undefined })
+    const [formError, setFormError] = useState({})
     const changeFormData = (targetInput, newInputValue) => {
         setFormData(oldFormData => ({...oldFormData, [targetInput]: newInputValue }))
     }
 
-    const [formError, setFormError] = useState({})
     
+    const [isFormSubmissionLoading, setIsFormSubmissionLoading] = useState(false);
     const handleFormSubmission = async () => {    
         try{
-            if(formData.gender === undefined || formData.graduationYear === undefined){
-                setFormError(oldFormData => ({...oldFormData, generic: "please enter all info"}))
-                console.log("error")
-                return;
-            }
-
+            const validFormData = await formSchema.validate(formData, {abortEarly: false})
+        }
+        catch(err){
+            return setFormError(err.inner.reduce((a,validationError) => ({...a, [validationError.path] : validationError.message}), {}))       
+        }
+        try{
+            setIsFormSubmissionLoading(true)
             const resCreateAccount = await axios.post('/create-account', {
                 ...formData,
                 firstName: formData.fullName.split(" ")[0],
@@ -52,7 +53,7 @@ export default function RegisterFinal({ route, navigation }) {
             navigation.navigate('map')
         
         }catch(err){
-            console.log(err);
+            return setFormError({generic: err.response.data.trim() ? err.response.data : 'an unexpected server error occured'})
         }
     }
     
@@ -63,11 +64,16 @@ export default function RegisterFinal({ route, navigation }) {
         <SafeAreaView style={styles.screen}>
             <View style={styles.questions}>
                 <Text style={styles.h3}>How do you describe yourself?</Text>
-                <RadioButtonGroup
-                    options={genderOptions}
-                    selectedOptionValue={formData.gender}
-                    onPress={({ value: newVal }) => changeFormData("gender",newVal)}
-                />
+                
+                <View style={styles.inputContainer}>
+                    <RadioButtonGroup
+                        options={genderOptions}
+                        selectedOptionValue={formData.gender}
+                        onPress={({ value: newVal }) => changeFormData("gender",newVal)}
+                    />
+                    {formError["gender"] && <Text style={styles.errorText}>{formError["gender"]}</Text>}
+
+                </View>
 
                 <Text style={styles.h3}>When do you graduate?</Text>
                 <RadioButtonGroup
@@ -75,11 +81,15 @@ export default function RegisterFinal({ route, navigation }) {
                     selectedOptionValue={formData.graduationYear}
                     onPress={({ value: newVal }) => changeFormData("graduationYear",newVal)}
                 />
-                {formError.generic && <Text style={styles.errorText}>please enter all the info</Text>}
+                {formError["graduationYear"] && <Text style={styles.errorText}>{formError["graduationYear"]}</Text>}
+
+        
+            
             </View>
 
 
             <View style={styles.submit}>
+                {formError.generic && <Text style={styles.errorTextGeneric}>{formError.generic}</Text>}
                 <Button
                     text="VERIFY YOUR ACCOUNT"
                     priority={1}
@@ -121,5 +131,10 @@ const createStyles = theme => (StyleSheet.create({
         position: 'absolute',
         bottom: -20,
         fontFamily: 'Poppins_400Regular',
+    },
+    errorTextGeneric:{
+        fontFamily: 'Poppins_400Regular',
+        color: theme.colors.primary,
+        fontSize: 14,
     },
 }))
