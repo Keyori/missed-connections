@@ -17,7 +17,7 @@ pub struct AddCommentRequest {
 }
 
 #[post("/comments", data = "<request>")]
-pub async fn add_comment(
+pub async fn post_comment(
     mut db: Connection<Db>,
     _account: AuthorizedUser,
     request: Json<AddCommentRequest>,

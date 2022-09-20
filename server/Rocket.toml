@@ -1,4 +1,4 @@
-[default.databases.sqlx_postgres]
+[default.databases.missed_connections_db]
 url = "postgresql://postgres:docker@localhost:5432/postgres"
 
 min_connections = 64

@@ -1,7 +1,7 @@
+use crate::models::NewAccount;
 use crate::{db, Db};
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome};
-use rocket::serde::{Deserialize, Serialize};
 use rocket::Request;
 use rocket_db_pools::Connection;
 use std::str::FromStr;
@@ -37,25 +37,14 @@ impl<'r> FromRequest<'r> for AuthorizedUser {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-#[derive(sqlx::Type)]
-#[sqlx(rename_all = "lowercase")]
-pub enum Gender {
-    Male,
-    Female,
-    Other,
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(crate = "rocket::serde")]
 #[serde(rename_all = "camelCase")]
 pub struct CreateAccountRequest {
     pub email: String,
     pub username: String,
-    pub first_name: String,
-    pub last_name: String,
+    pub name: String,
     pub password: String,
-    pub gender: Gender,
-    pub graduation_year: i16,
+    pub gender: Gende,
+    pub graduation_year: i8,
 }
 
 #[derive(Responder)]
