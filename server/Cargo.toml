@@ -10,14 +10,11 @@ constant_time_eq = "0.1.5"
 check-if-email-exists = "0.8.29"
 rust-argon2 = "1.0.0"
 rand = "0.8.5"
-uuid = { version = "0.8", features = ["v4"]}
+uuid = { version = "0.8", features = ["v4"] }
+diesel = { version = "2.0.0", features = ["postgres"] }
 
-[dependencies.rocket_db_pools]
+[dependencies.rocket_sync_db_pools]
 version = "0.1.0-rc.2"
-features = ["sqlx_postgres"]
+features = ["diesel_postgres_pool"]
 
-[dependencies.sqlx]
-version = "0.5"
-default-features = true
-features = ["macros", "uuid", "time"]
 

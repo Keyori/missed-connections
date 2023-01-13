@@ -1,5 +1,6 @@
 use crate::error::ServerError;
 use crate::error::ServerError::Expected;
+use crate::models::NewAccount;
 use crate::user_api::{CreateAccountError, CreateAccountRequest, LoginError, LoginRequest};
 use crate::{db, Db};
 use rand::Rng;
@@ -7,14 +8,13 @@ use rocket::serde::json::Json;
 use rocket_db_pools::Connection;
 use sqlx::types::Uuid;
 use sqlx::Acquire;
+use crate::schema::*;
 
 #[post("/create-account", data = "<request>")]
 pub async fn create_account(
-    mut db: Connection<Db>,
+    connection: Db,
     request: Json<CreateAccountRequest>,
 ) -> Result<(), ServerError<CreateAccountError>> {
-    let mut transaction = (&mut *db).begin().await?;
-
     if request.graduation_year < 2022 || request.graduation_year > 2026 {
         return Err(Expected(CreateAccountError::InvalidGraduationYear(
             "Invalid graduation year.".to_string(),
@@ -46,20 +46,35 @@ pub async fn create_account(
         &argon2::Config::default(),
     )
     .unwrap();
+    
+    diesel::insert_into(accounts::table)
+    .values(NewAccount {
+        username: &request.username,
+        email: &request.email,
+        password_hash: &&password_hash,
+        name: &request.name,
+        gender: crate::schema::sql_types::Gender,
+        graduation_year: 0
+    });
 
-    db::add_account(
-        &mut transaction,
-        &request.username,
-        &request.email,
-        &password_hash,
-        &request.first_name,
-        &request.last_name,
-        &request.gender,
-        request.graduation_year,
-    )
-    .await?;
 
-    transaction.commit().await?;
+    connection.start(|c| {
+        diesel::insert_into();
+
+        db::add_account(
+            &mut transaction,
+            &request.username,
+            &request.email,
+            &password_hash,
+            &request.first_name,
+            &request.last_name,
+            &request.gender,
+            request.graduation_year,
+        )
+            .await?;
+    })
+        .await
+        .unwrap();
 
     Ok(())
 }

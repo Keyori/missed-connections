@@ -5,9 +5,8 @@ use sqlx::types::time::PrimitiveDateTime;
 use sqlx::{Error, Postgres, Row, Transaction};
 use uuid::Uuid;
 
-#[derive(Database)]
-#[database("sqlx_postgres")]
-pub struct Db(pub sqlx::PgPool);
+#[database("missed_connections_db")]
+pub struct Db(pub diesel::PgConnection);
 
 #[derive(FromRow)]
 pub struct DbPost {
@@ -122,6 +121,7 @@ pub async fn add_account(
     gender: &Gender,
     graduation_year: i16,
 ) -> Result<(), DbError> {
+
     sqlx::query("INSERT INTO accounts ( username, email, password_hash, first_name, last_name, gender, graduation_year ) VALUES ( $1, $2, $3, $4, $5, $6, $7 )")
         .bind(username)
         .bind(email)
@@ -161,6 +161,20 @@ pub async fn set_session_id(
     )
     .execute(transaction)
     .await?;
+
+    Ok(())
+}
+
+pub async fn add_comment(
+    transaction: &mut Transaction<'_, Postgres>,
+    post_id: Uuid,
+    message: &str,
+) -> Result<(), DbError> {
+    sqlx::query!("INSERT INTO comments ( post_id, posted_at, message, likes ) VALUES ( $1, default, $2, 0 )",
+        post_id,
+        message)
+        .execute(transaction)
+        .await?;
 
     Ok(())
 }

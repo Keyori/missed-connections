@@ -15,7 +15,7 @@ pub enum GetPostError {
     InvalidId(String),
 }
 
-#[get("/posts/<id>")]
+#[get("/<id>")]
 pub async fn get_post(
     db: &Db,
     _account: AuthorizedUser,
@@ -70,7 +70,7 @@ impl From<DbPost> for Post {
     }
 }
 
-#[get("/posts?<id>&<limit>")]
+#[get("/?<id>&<limit>")]
 pub async fn get_posts(
     db: &Db,
     _account: AuthorizedUser,
@@ -108,7 +108,7 @@ pub struct AddPostRequest {
     pub campus: String,
 }
 
-#[post("/posts", data = "<request>")]
+#[post("/", data = "<request>")]
 pub async fn add_post(
     mut db: Connection<Db>,
     account: AuthorizedUser,
@@ -131,7 +131,7 @@ pub async fn add_post(
     Ok(())
 }
 
-#[get("/posts/map")]
+#[get("/map")]
 pub async fn get_posts_map(
     db: &Db,
     _account: AuthorizedUser,
