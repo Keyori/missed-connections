@@ -1,5 +1,0 @@
-DROP TABLE comments;
-DROP TABLE posts;
-DROP TABLE accounts;
-
-DROP TYPE GENDER;

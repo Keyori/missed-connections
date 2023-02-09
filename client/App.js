@@ -51,7 +51,7 @@ export default function App() {
   return (
     <ThemeContext.Provider value={darkMode ? darkTheme : theme}>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName={!loggedIn? "boarding": "map"} screenOptions={{ headerShown: false, cardStyleInterpolator: ({ current }) => ({ cardStyle: { opacity: current.progress } }) }}>
+        <Stack.Navigator initialRouteName={loggedIn? "boarding": "map"} screenOptions={{ headerShown: false, cardStyleInterpolator: ({ current }) => ({ cardStyle: { opacity: current.progress } }) }}>
           <Stack.Screen name="boarding" component={Boarding} />
           <Stack.Screen name="createPost" component={CreatePost} />
           <Stack.Screen name="map" component={Map} />
