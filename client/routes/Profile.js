@@ -1,12 +1,7 @@
 import React, { useContext } from 'react'
 import { Text, View, StyleSheet, Dimensions } from 'react-native'
-import { useFonts, Poppins_800ExtraBold, Poppins_500Medium, Poppins_600SemiBold, Poppins_400Regular } from '@expo-google-fonts/poppins';
-// import { useFonts, Poppins_600SemiBold } from '@expo-google-fonts/poppins'
-// import { useFonts, Poppins_500Medium } from '@expo-google-fonts/poppins'
-// import { useFonts, Poppins_400Regular } from '@expo-google-fonts/poppins'
 
 
-import AppLoading from 'expo-app-loading';
 import Button from '../components/Button'
 import DesignPatternSmall from '../assets/images/design_pattern_small'
 import DesignPatternBig from '../assets/images/design_pattern_big'
@@ -14,22 +9,14 @@ import { ThemeContext } from '../styles/ThemeContext'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import NavBar from '../components/NavBar';
 
+
 export default function Profile({ navigation }) {
     const theme = useContext(ThemeContext)
     const styles = createStyles(theme)
 
-    //load and wait for fonts. 
-    let [fontsLoaded] = useFonts({
-        Poppins_800ExtraBold,
-        Poppins_600SemiBold,
-        Poppins_400Regular,
-        Poppins_500Medium,
-        'ITC Giovanni': require('../assets/fonts/itc_giovanni_std_book.otf')
-    });
 
     const str = 'Harsh'
-    if (!fontsLoaded)
-        return <AppLoading />
+
     return (
         <SafeAreaView style={styles.frameContainer}>
             <DesignPatternSmall style={styles.designPattern} />

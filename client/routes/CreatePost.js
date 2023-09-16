@@ -1,6 +1,4 @@
 import React, { useContext, useState, useEffect, useRef } from 'react'
-import { useFonts, Poppins_400Regular, Poppins_500Medium } from '@expo-google-fonts/poppins'
-import AppLoading from 'expo-app-loading'
 import { View, Text, ScrollView, StyleSheet, Dimensions, TextInput, Pressable, Keyboard, KeyboardAvoidingView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import axios from 'axios'
@@ -41,11 +39,6 @@ export default function CreatePost({ navigation }) {
     const { width: vw, height: vh } = Dimensions.get('window')
     const styles = createStyles(theme, vw, vh, isKeyboardVisible)
 
-    let [fontsLoaded] = useFonts({
-        Poppins_400Regular,
-        Poppins_500Medium,
-        'ITC Giovanni': require('../assets/fonts/itc_giovanni_std_book.otf')
-    })
 
     const [postText, setPostText] = useState("");
     const handlePostText = text => { setPostText(text) };
@@ -56,10 +49,8 @@ export default function CreatePost({ navigation }) {
     const isValidPost = postText => postText.length > 5
 
     async function handlePublish() {
-        console.log(postText)
         try {
             const sessionId = await SecureStore.getItemAsync("sessionId");
-            console.log(sessionId)
             const responseData = await axios.post("http://localhost:3000/api/posts", {
                 sessionId: sessionId,
                 content: postText,
@@ -68,7 +59,6 @@ export default function CreatePost({ navigation }) {
                 location: location.mainText,
                 campus: -1,
             })
-            console.log(responseData)
             navigation.pop();
         }
         catch (err) {
@@ -100,7 +90,7 @@ export default function CreatePost({ navigation }) {
     }, [])
 
 
-    if (!fontsLoaded) return <AppLoading />
+
     return (
         <KeyboardAvoidingView behavior='padding'>
             <SafeAreaView style={styles.screen}>
@@ -174,7 +164,6 @@ export default function CreatePost({ navigation }) {
                 {isDateTimePickerVisible &&
                     <DateTimePicker onSelectDateTime={dateTime =>{
                         setDateTime(dateTime)
-                        console.log(dateTime)
                         setIsDateTimePickerVisible(false)
                     }}/>
                 }

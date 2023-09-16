@@ -1,6 +1,4 @@
 import React, { useContext, useEffect, useRef } from 'react'
-import { useFonts, Poppins_700Bold,Poppins_400Regular } from '@expo-google-fonts/poppins'
-import AppLoading from 'expo-app-loading'
 import { View, Text, StyleSheet, Animated } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { object, string, number, date, InferType } from 'yup';
@@ -11,14 +9,11 @@ import { ThemeContext } from '../styles/ThemeContext'
 import { useState } from 'react/cjs/react.development'
 
 
+
+
 export default function Register({ navigation }) {
     const theme = useContext(ThemeContext)
     const styles = createStyles(theme)
-    let [fontsLoaded] = useFonts({
-        Poppins_700Bold,
-        Poppins_400Regular,
-        'ITC Giovanni': require('../assets/fonts/itc_giovanni_std_book.otf')
-    })
 
 
     const formSchema = object().shape({
@@ -55,9 +50,7 @@ export default function Register({ navigation }) {
     }
 
 
-    if (!fontsLoaded) {
-        return <AppLoading />
-    } else {
+
         return (
             <SafeAreaView style={styles.screen}>
                 <View style={styles.titleAndInputs}>
@@ -121,7 +114,7 @@ export default function Register({ navigation }) {
         )
     }
 
-}
+
 
 const createStyles = (theme) => (StyleSheet.create({
     screen: {

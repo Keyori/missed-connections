@@ -1,6 +1,4 @@
 import React, { useContext, useState, useRef } from 'react'
-import { useFonts, Poppins_700Bold } from '@expo-google-fonts/poppins'
-import AppLoading from 'expo-app-loading'
 import { View, Text, StyleSheet, Dimensions, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import axios from 'axios'
@@ -16,10 +14,7 @@ export default function Login({ navigation }) {
 
     const theme = useContext(ThemeContext)
     const styles = createStyles(theme, Dimensions.get('window').height)
-    let [fontsLoaded] = useFonts({
-        Poppins_700Bold,
-        'ITC Giovanni': require('../assets/fonts/itc_giovanni_std_book.otf')
-    })
+
 
     
     const formSchema = object().shape({
@@ -60,7 +55,6 @@ export default function Login({ navigation }) {
     }
 
     
-    if (!fontsLoaded) return <AppLoading />
     return (
         <SafeAreaView style={styles.screen}>
             <View style={styles.titleAndInputs}>

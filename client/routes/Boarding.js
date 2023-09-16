@@ -1,25 +1,19 @@
 import React, { useContext } from 'react'
 import { Text, View, StyleSheet, Dimensions } from 'react-native'
-import { useFonts, Poppins_800ExtraBold } from '@expo-google-fonts/poppins';
 
-import AppLoading from 'expo-app-loading';
 import Button from '../components/Button'
 import DesignPatternSmall from '../assets/images/design_pattern_small'
 import DesignPatternBig from '../assets/images/design_pattern_big'
 import { ThemeContext } from '../styles/ThemeContext'
 
+
 export default function Boarding({ navigation }) {
     const theme  = useContext(ThemeContext)
     const styles = createStyles(theme)
     
-    //load and wait for fonts. 
-    let [fontsLoaded] = useFonts({
-        Poppins_800ExtraBold,
-        'ITC Giovanni': require('../assets/fonts/itc_giovanni_std_book.otf')
-    });
+
     
-    if (!fontsLoaded)
-        return <AppLoading />
+
     return (
         <View style={styles.container}>
 

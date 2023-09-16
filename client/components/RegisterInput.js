@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react'
 import { Image, StyleSheet, TextInput, TouchableHighlight, View } from "react-native";
-import { Poppins_400Regular, useFonts } from '@expo-google-fonts/poppins';
-import AppLoading from 'expo-app-loading';
 import PasswordIcon from '../assets/images/password_icon'
 import { ThemeContext } from '../styles/ThemeContext';
+
+
 
 export default function RegisterInput({
   placeholderText,
@@ -17,15 +17,11 @@ export default function RegisterInput({
   const theme = useContext(ThemeContext)
   const styles = createStyles(theme)
 
-  let [fontsLoaded] = useFonts({
-    Poppins_400Regular,
-  });
+
 
   let [passwordFieldState, setPasswordFieldState] = useState(secureTextEntry)
 
-  if (!fontsLoaded) {
-    return <AppLoading />
-  } else {
+
     return (
       <View style={[styles.container, extraStyles]}>
         <TextInput
@@ -55,7 +51,7 @@ export default function RegisterInput({
       </View>
     )
   }
-}
+
 
 
 

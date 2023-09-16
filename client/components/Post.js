@@ -1,8 +1,6 @@
 import React,  {useContext} from 'react'
 import { Dimensions, StyleSheet, Text, TextInput, View, ScrollView} from 'react-native';
-import { Poppins_400Regular, Poppins_400Regular_Italic, Poppins_500Medium, Poppins_700Bold, useFonts } from '@expo-google-fonts/poppins';
 import { SafeAreaView } from "react-native-safe-area-context";
-import AppLoading from 'expo-app-loading';
 import Color from 'color';
 
 import { ThemeContext } from '../styles/ThemeContext';
@@ -15,15 +13,8 @@ export default function Post({ textContent, date, location, campus}) {
     const background = theme.colors[campus] === undefined ? "white" :theme.colors[campus] ;
     const foreground = Color(background).darken(0.6).hex()
     const styles = createStyles(theme, Dimensions.get("window").height,Dimensions.get("window").width, background, foreground)
+    
 
-    let [fontsLoaded] = useFonts({
-        Poppins_500Medium,
-        Poppins_700Bold,
-        Poppins_400Regular,
-        Poppins_400Regular_Italic
-    });
-    if (!fontsLoaded)
-        return <AppLoading />
 
 
     return (

@@ -21,16 +21,17 @@ export default function Map({ navigation }) {
   const styles = createStyles(theme, Dimensions.get('window').width, Dimensions.get('window').height)
   const [posts, setPosts] = useState([]) 
   
-  useEffect(async ()=>{
-    try{
-      const {data} = await axios.get("http://192.168.1.237:3000/api/1.0/posts/map") ;
-     setPosts(Object.entries(data) );
-    }catch(err){
-        console.log(err)
+  useEffect(()=>{
+    const fetchData = async () => {
+      try{
+        const {data} = await axios.get("/posts") ;
+        setPosts(Object.entries(data) );
+      }catch(err){
+          console.log(err);
+      }
     }
+    fetchData();
   },[])
-
-
 
   /**
    * Map business logic. 
@@ -38,8 +39,7 @@ export default function Map({ navigation }) {
   const mapRef = useRef();
   const handleAnimateToRegion = region => { mapRef.current.animateToRegion(region) }
   const handleMarkerPress = (e, post, campus) => {
-    console
-    navigation.navigate("feed", { pid: post.pid, campus: campus, postCoordinate: e.nativeEvent.coordinate })
+    navigation.navigate("feed", { pid: post.id, campus: campus, postCoordinate: e.nativeEvent.coordinate })
   }
 
 
@@ -90,13 +90,13 @@ export default function Map({ navigation }) {
             key={"" + i + j}
             icon={require('../assets/images/icon.png')}
             onPress={(e)=>handleMarkerPress(e, point, campusPosts[0])}
-            coordinate={{ latitude: point.latitude, longitude: point.longitude}}
+            coordinate={{ latitude: parseFloat(point.latitude), longitude: parseFloat(point.longitude)}} // todo: return lat and long as floats from the api 
           />
         ))}
 
         {posts.map((campusPosts, i) => (
           <Heatmap
-            points={campusPosts[1]}
+            points={campusPosts[1].map(point => ({latitude: parseFloat(point.latitude), longitude: parseFloat(point.longitude)}))}
             key={i}
             radius={50}
             gradientSmoothing={100}

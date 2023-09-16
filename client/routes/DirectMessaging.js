@@ -1,7 +1,5 @@
 import React, {useContext} from 'react'
-import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold } from '@expo-google-fonts/poppins'
 import { View, Text, Dimensions, TextInput} from 'react-native'
-import AppLoading from 'expo-app-loading'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 
@@ -13,14 +11,9 @@ export default function DirectMessaging() {
     const theme = useContext(ThemeContext)
     const styles = createStyles(theme,Dimensions.get('window').width)
 
-    let [fontsLoaded] = useFonts({
-        Poppins_400Regular,
-        Poppins_500Medium,
-        Poppins_600SemiBold
-    })
+
     
 
-    if (!fontsLoaded) return <AppLoading />
     return (
         <SafeAreaView style = {{flex:1,backgroundColor: 'white'}}>
             <View style={styles.opIdentificationContainer}>

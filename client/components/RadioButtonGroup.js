@@ -1,7 +1,5 @@
 import React, { useContext } from 'react';
 import { Pressable, StyleSheet, View, Text } from 'react-native'
-import { Poppins_400Regular, useFonts } from "@expo-google-fonts/poppins"
-import AppLoading from 'expo-app-loading';
 import { ThemeContext } from '../styles/ThemeContext';
 
 
@@ -9,9 +7,7 @@ export default function RadioButtonGroup({selectedOptionValue,options, onPress, 
     const theme = useContext(ThemeContext)
     const styles = createStyles(theme, extraRadioStyles, extraRadioFillStyles)
 
-    let [fontsLoaded] = useFonts({
-        Poppins_400Regular
-    })
+
 
     const RadioButton = ({label, value, style, selected = true}) =>( 
         <Pressable  onPress={()=>onPress({label,value})} style= {styles.radioContainer}> 
@@ -23,8 +19,7 @@ export default function RadioButtonGroup({selectedOptionValue,options, onPress, 
         </Pressable>
     )
     
-    if (!fontsLoaded)
-        return <AppLoading />
+
     return options.map( ({value, label}, i) => (
         <RadioButton value = {value} label = {label} key = {i} selected ={selectedOptionValue === value} />
     )) 

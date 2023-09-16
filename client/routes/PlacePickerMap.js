@@ -6,8 +6,6 @@ import mapStyle from "../styles/mapStyle.json"
 import { debounce } from 'throttle-debounce';
 
 
-import { useFonts, Poppins_400Regular, Poppins_500Medium } from '@expo-google-fonts/poppins';
-import AppLoading from 'expo-app-loading';
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import MarkerSVG from '../assets/images/marker'
@@ -21,10 +19,7 @@ export default function PlacePickerMap({route, navigation}) {
 
   const theme = useContext(ThemeContext)
   const styles = createStyles(theme, Dimensions.get('screen').width, Dimensions.get('screen').height)
-  let [fontsLoaded] = useFonts({
-    Poppins_400Regular,
-    Poppins_500Medium,
-})
+
 
   const mapRef = useRef();
   

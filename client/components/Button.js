@@ -1,19 +1,15 @@
 import React, { useContext } from 'react'
 import { StyleSheet, Text } from 'react-native'
-import { useFonts, Poppins_400Regular } from '@expo-google-fonts/poppins';
-import AppLoading from 'expo-app-loading';
 import { ThemeContext } from '../styles/ThemeContext'
 import OutlinedWidget from './OutlinedButton';
+
 
 export default function Button({text, priority=1, onPress, fontSize, shadowTint, height, width, paddingHorizontal=25, borderRadius, shadowOffSet, extraStyles={}, }) {
     const theme  = useContext(ThemeContext)
     const {styles, buttonTheme} = createStyles(theme, fontSize, priority, paddingHorizontal)
-    let [fontsLoaded] = useFonts({
-        Poppins_400Regular,
-    });
 
-    if (!fontsLoaded)
-        return <AppLoading />
+
+
     return (
         <OutlinedWidget 
         topTint={buttonTheme.primary} 

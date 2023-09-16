@@ -2,8 +2,6 @@
 import { useContext, useEffect, useState, useRef } from 'react';
 import { Dimensions, TextInput, StyleSheet, View, Text, FlatList, Pressable, Keyboard } from 'react-native';
 import axios from 'axios';
-import { useFonts, Poppins_400Regular, Poppins_500Medium } from '@expo-google-fonts/poppins';
-import AppLoading from 'expo-app-loading';
 import { useNavigation } from '@react-navigation/native';
 import { debounce } from 'throttle-debounce';
 
@@ -19,7 +17,6 @@ export default function PlacesAutocomplete({ placeholderText="Search Location", 
 
     const theme = useContext(ThemeContext)
     const styles = createStyles(theme, Dimensions.get('window').width, Dimensions.get('window').height, width)
-    let [fontsLoaded] = useFonts({ Poppins_400Regular, Poppins_500Medium });
     const navigation = useNavigation();
 
 
@@ -149,8 +146,8 @@ export default function PlacesAutocomplete({ placeholderText="Search Location", 
       const handleFocus = ()=> setDropdown(old => ({...old, isOpen: includesPlacePicker}))
 
 
-    if (!fontsLoaded) return <AppLoading />
-    return (
+      
+      return (
         <View style={styles.container}>
             <View style={styles.response}>
                 {displaySearchIcon && <SearchSvg height={19} width={19} style={styles.icon} />}
