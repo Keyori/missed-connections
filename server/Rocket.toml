@@ -1,7 +1,0 @@
-[default.databases.sqlx_postgres]
-url = "postgresql://postgres:docker@localhost:5432/postgres"
-
-min_connections = 64
-max_connections = 1024
-connect_timeout = 5
-idle_timeout = 120
