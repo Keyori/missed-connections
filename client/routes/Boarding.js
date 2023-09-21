@@ -23,7 +23,7 @@ export default function Boarding({ navigation }) {
             <View style={styles.headersContainer}>
                 <View>
                     <Text style={styles.h1}>Missed Connections</Text>
-                    <Text style={styles.h2}>Connect with stranger students over memorable marvelous or dumb encounters</Text>
+                    <Text style={styles.h2}>Connect with those you've seen around  campus</Text>
                 </View>
 
                 <View style={styles.ctaContainer}>
@@ -36,7 +36,7 @@ export default function Boarding({ navigation }) {
                     <Button
                         text={"log in".toUpperCase()}
                         priority={2}
-                        onPress={() => navigation.navigate('login')}
+                        onPress={() => navigation.navigate('map')}
                         extraStyles={styles.button}
                     />
                 </View>

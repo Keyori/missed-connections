@@ -37,7 +37,7 @@ class PostController extends Controller
      */
     public function show(string $id)
     {
-        $random_feed_posts = Post::inRandomOrder()->whereNotNull('campus')->limit(10)->get()->toArray();
+        $random_feed_posts = Post::inRandomOrder()->whereNotNull('campus')->limit(5)->get()->toArray();
         array_unshift($random_feed_posts, Post::find($id));
         return $random_feed_posts;
     }

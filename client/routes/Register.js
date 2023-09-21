@@ -55,7 +55,7 @@ export default function Register({ navigation }) {
             <SafeAreaView style={styles.screen}>
                 <View style={styles.titleAndInputs}>
                     <Text style={styles.h1}>Join the Club</Text>
-                    <Text style={styles.h2}>Message others, find that one special encounter.</Text>
+                    <Text style={styles.h2}>Find that one special encounter.</Text>
 
                     <View style={styles.inputContainer}>
                         <RegisterInput

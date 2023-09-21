@@ -8,7 +8,7 @@ import {
 	Poppins_400Regular,
 	Poppins_400Regular_Italic,
 	Poppins_500Medium,
-  Poppins_600SemiBold,
+	Poppins_600SemiBold,
 	Poppins_700Bold,
 	Poppins_800ExtraBold,
 	useFonts,
@@ -45,7 +45,7 @@ export default function App() {
 		Poppins_400Regular,
 		Poppins_400Regular_Italic,
 		Poppins_500Medium,
-    Poppins_600SemiBold,
+		Poppins_600SemiBold,
 		Poppins_700Bold,
 		Poppins_800ExtraBold,
 		"ITC Giovanni": require("./assets/fonts/itc_giovanni_std_book.otf"),
@@ -77,53 +77,44 @@ export default function App() {
 	if (!fontsLoaded && !fontError) {
 		return null;
 	}
-  onLayoutRootView();
+	onLayoutRootView();
 
 	return (
-			<ThemeContext.Provider value={darkMode ? darkTheme : theme}>
-					<NavigationContainer>
-						<Stack.Navigator
-							initialRouteName={!loggedIn ? "boarding" : "map"}
-							screenOptions={{
-								headerShown: false,
-								cardStyleInterpolator: ({ current }) => ({
-									cardStyle: { opacity: current.progress },
-								}),
-							}}
-						>
-							<Stack.Screen
-								name="boarding"
-								component={Boarding}
-							/>
-							<Stack.Screen
-								name="createPost"
-								component={CreatePost}
-							/>
-							<Stack.Screen name="map" component={Map} />
-							<Stack.Screen name="login" component={Login} />
-							<Stack.Screen
-								name="register"
-								component={Register}
-							/>
-							<Stack.Screen
-								name="registerFinal"
-								component={RegisterFinal}
-							/>
-							<Stack.Screen
-								name="verifyEmail"
-								component={VerifyEmail}
-							/>
-							<Stack.Screen name="feed" component={Feed} />
-							<Stack.Screen
-								name="profile"
-								component={DirectMessaging}
-							/>
-							<Stack.Screen
-								name="placePickerMap"
-								component={PlacePickerMap}
-							/>
-						</Stack.Navigator>
-					</NavigationContainer>
-			</ThemeContext.Provider>
+		<ThemeContext.Provider value={darkMode ? darkTheme : theme}>
+			<NavigationContainer>
+				<Stack.Navigator
+					initialRouteName={loggedIn ? "boarding" : "map"}
+					options={{ presentation: "transparentModal" }}
+					screenOptions={{
+						headerShown: false,
+						gestureEnabled: false,
+						animation: 'none'
+					}}
+				>
+					<Stack.Screen name="boarding" component={Boarding} />
+					<Stack.Screen name="createPost" component={CreatePost} />
+					<Stack.Screen name="map" component={Map} />
+					<Stack.Screen name="login" component={Login} />
+					<Stack.Screen name="register" component={Register} />
+					<Stack.Screen
+						name="registerFinal"
+						component={RegisterFinal}
+					/>
+					<Stack.Screen name="verifyEmail" component={VerifyEmail} />
+					<Stack.Screen
+						name="feed"
+						component={Feed}
+						options={{
+							animationEnabled: false,
+						}}
+					/>
+					<Stack.Screen name="profile" component={DirectMessaging} />
+					<Stack.Screen
+						name="placePickerMap"
+						component={PlacePickerMap}
+					/>
+				</Stack.Navigator>
+			</NavigationContainer>
+		</ThemeContext.Provider>
 	);
 }

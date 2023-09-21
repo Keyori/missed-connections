@@ -7,10 +7,13 @@ import {
 	Text,
 } from "react-native";
 import IconButton from "../components/IconButton";
+import * as SplashScreen from "expo-splash-screen";
+
 import { ThemeContext } from "../styles/ThemeContext";
 
 import Post from "../components/Post";
 import axios from "axios";
+
 
 export default function Feed({ route, navigation }) {
 	const theme = useContext(ThemeContext);
@@ -36,7 +39,7 @@ export default function Feed({ route, navigation }) {
 	return (
 		<>
 			{posts.length == 0 ? (
-				<Text>loading</Text>
+				<></>
 			) : (
 				<FlatList
 					data={posts}
