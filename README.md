@@ -23,3 +23,5 @@ Missed Connections Map is a mobile app built using React Native. The backend of 
 - **Maps**: Google Maps API
 
 
+## Awards
+This project has won the social good track in [HackRU Srping 2022](https://devpost.com/software/ru-missed-connections)
